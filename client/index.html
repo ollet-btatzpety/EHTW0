@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" class="notranslate" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+<meta name="google" content="notranslate">
+<title>TextWall</title>
+<link rel="icon" sizes="192x192" href="/static/icons/icon.png">
+<link rel="apple-touch-icon" href="/static/icons/apple-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="description" content="Multiplayer text editor.">
+<meta id="theme-colour" name="theme-color" content="#222222">
+<meta property="og:title" content="TextWall">
+<meta property="og:type" content="website">
+<meta property="og:description" content="Multiplayer text editor.">
+<meta property="og:url" content="https://textwall.cc/">
+<meta property="og:image" content="/static/icons/icon.gif">
+<link rel="stylesheet" href="/static/textwall.css">
+</head>
+<body>
+<textarea id="clipboard"></textarea>
+<textarea id="textarea" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"></textarea>
+<div class="container">
+<div id="toast"></div>
+<div id="teleport">
+<div id="closeteleport">
+<img alt="cancel" src="/static/cancel.svg">
+</div>
+<span class="tptitle">Teleport</span>
+<form>
+<label for="tpword">Where would you like to go?</label>
+<input id="tpword" maxlength="250" type="text">
+<input type="submit" id="tpwordgo" value="Go">
+</form>
+<div id="walllist"></div>
+<hr>
+<form class="coordinput">
+<div>
+<label for="tpx">X:</label>
+<input id="tpx" value="0" type="number"><br>
+<label for="tpy">Y:</label>
+<input id="tpy" value="0" type="number">
+<input type="submit" id="tpcoordgo" value="Go">
+</div>
+</form>
+</div>
+</div>
+<div id="chat" class="hidden">
+<div class="buttoncontainer">
+<div id="chatbutton">
+<img alt="chat" class="button" src="/static/chat.svg">
+<div id="unread"></div>
+</div>
+</div>
+<div class="chatcontainer">
+<div id="chatbox"></div>
+<div class="msgcontainer">
+<input maxlength="180" type="text" title="type a message" id="chatmsg">
+<img alt="send" id="sendmsg" class="button" src="/static/send.svg">
+</div>
+</div>
+</div>
+<div id="usermenu" class="hidden">
+<div id="optionsmenu">
+<h1>Options</h1>
+<input id="showothercurs" type="checkbox"><label for="showothercurs">Show other cursors</label><br>
+<input id="shownametags" type="checkbox"><label for="shownametags">Show nametags</label><br>
+<input id="showchat" type="checkbox"><label for="showchat">Show chat</label><br>
+<input id="disablecolour" type="checkbox"><label for="disablecolour">Disable colour</label><br>
+<input id="smoothpanning" type="checkbox"><label for="smoothpanning">Smooth panning</label><br>
+<input id="smoothcursors" type="checkbox"><label for="smoothcursors">Smooth cursors</label><br>
+<input id="copycolour" type="checkbox"><label for="copycolour">Copy colours</label><br>
+<input id="copydecorations" type="checkbox"><label for="copydecorations">Copy decorations</label><br>
+<input id="rainbow" type="checkbox"><label for="rainbow">Rainbow text</label><br><br>
+<label for="zoom">Zoom: </label><input type="range" min="5" max="30" value="10" id="zoom"><br><br>
+<label for="fontselect">Font: </label><select id="fontselect"></select><br>
+<fieldset id="fontmenu" class="hidden">
+<legend>Custom Font</legend>
+<label for="customfont">Name:</label><input id="customfont" type="text"><br>
+<label for="customfontsize">Size:</label><input id="customfontsize" type="number" min="1" max="20" value="20"><br>
+</fieldset>
+<fieldset id="thememenu" class="hidden">
+<legend>Custom Theme</legend>
+<label for="primary">Primary:</label><input id="primary" type="color" value="#FFFCE5"><br>
+<label for="secondary">Secondary:</label><input id="secondary" type="color" value="#FBFFBD"><br>
+<input id="themetext" type="checkbox"><label for="themetext">White text</label>
+</fieldset>
+<form id="login">
+<h3>Log in</h3>
+<label for="loginname">Username</label><br>
+<input id="loginname" autocomplete="username" type="text" maxlength="24" minlength="1"><br>
+<label for="loginpass">Password</label><br>
+<input id="loginpass" type="password" autocomplete="current-password" maxlength="64" minlength="1">
+<input type="submit" id="loginbtn" value="Go"><br>
+<span class="buttonlink" id="registerlink">Register</span>
+</form>
+<form id="register">
+<h3>Register</h3>
+<label for="username">Username</label><br>
+<input id="username" autocomplete="username" type="text" maxlength="24" minlength="1"><br>
+<label for="password">Password<small> (don't forget it)</small></label><br>
+<input id="password" type="password" autocomplete="new-password" maxlength="64" minlength="1"><br>
+<label for="password2">Password again</label><br>
+<input id="password2" type="password" autocomplete="new-password" maxlength="64" minlength="1">
+<input type="submit" id="registerbtn" value="Go"><br>
+<span class="buttonlink" id="loginlink">Log in</span>
+</form>
+<div id="loggedin">
+<p>Logged in as <a id="name" class="buttonlink"></a></p>
+<input id="anonymous" type="checkbox"><label for="anonymous">Anonymous</label><br>
+<span class="buttonlink" id="logoutlink">Log out</span>
+<span class="buttonlink" id="accsettinglink">Account settings</span>
+<div id="accountsettings">
+<h3>Account settings</h3>
+<form id="changenameform">
+<fieldset>
+<legend>Change username</legend>
+<label for="chngusername">New Username</label><br>
+<input id="chngusername" type="text" autocomplete="username" maxlength="24" minlength="1"><br>
+<label for="chngeusrpass">Password</label><br>
+<input id="chngeusrpass" autocomplete="new-password" type="password" maxlength="64" minlength="1"><br>
+<input type="submit" id="submitnamechange" value="Change username">
+</fieldset>
+</form>
+<form id="changepassform">
+<fieldset>
+<legend>Change password</legend>
+<input type="text" autocomplete="username" style="display: none;">
+<label for="oldpass">Old password</label><br>
+<input id="oldpass" type="password" autocomplete="new-password" maxlength="64" minlength="1"><br>
+<label for="newpass">New password</label><br>
+<input id="newpass" autocomplete="new-password" type="password" maxlength="64" minlength="1"><br>
+<label for="newpass2">New password again</label><br>
+<input id="newpass2" autocomplete="new-password" type="password" maxlength="64" minlength="1"><br>
+<input type="submit" id="submitpasschange" value="Change password">
+</fieldset>
+</form>
+<form id="delaccountform">
+<fieldset>
+<legend>Delete account</legend>
+<input type="text" autocomplete="username" style="display: none;">
+<label for="deletepassword">Password</label><br>
+<input id="deletepassword" autocomplete="new-password" type="password" maxlength="64" minlength="1"><br>
+<input type="submit" id="deleteaccount" value="Delete account">
+</fieldset>
+</form>
+</div>
+</div>
+<div id="wallsettings">
+<h1>Wall Settings</h1>
+<input id="protect" type="checkbox"><label for="protect">Protect</label><br>
+<input id="clear" type="checkbox"><label for="clear">Clear</label><br>
+<input id="readonly" type="checkbox"><label for="readonly">Read-only</label><br>
+<input id="private" type="checkbox"><label for="private">Private</label><br>
+<input id="hidecursors" type="checkbox"><label for="hidecursors">Hide cursors</label><br>
+<input id="disablechat" type="checkbox"><label for="disablechat">Disable chat</label><br>
+<input id="walldisablecolour" type="checkbox"><label for="walldisablecolour">Disable colour</label><br>
+<input id="disablebraille" type="checkbox"><label for="disablebraille">Disable braille</label><br>
+<div id="addmembers">
+<h3>Add members</h3>
+<form>
+<input id="inputmember" placeholder="username" type="text" maxlength="24" minlength="1"><input id="addmemberbtn" value="Add" type="submit"><br>
+</form>
+<div id="memberlist"></div>
+</div>
+<input id="deletewall" type="button" value="Delete wall">
+</div>
+<div id="admin">
+<h3>Admin</h3>
+<input id="l" type="checkbox"><br>
+<input type="text" id="t"></input><br>
+<input id="refresh" value="Refresh" type="button"><br>
+<textarea id="alerttext"></textarea><br>
+<input id="sendalert" value="Send" type="button"><br>
+<input id="reload" value="Reload" type="button"><br>
+<input type="text" id="deletename"><input type="button" id="delete" value="❌"><br>
+<input type="text" id="freename"><input type="button" id="free" value="💨"><br>
+<table id="admintable"></table>
+</div>
+</div>
+<div class="sidething">
+<div id="closemenu">
+<img alt="cancel" src="/static/cancel.svg">
+</div>
+<div id="colourlist"></div>
+</div>
+</div>
+<div id="connecting">
+<div class="connectingtext">
+<h1 id="connecting1"></h1>
+<h2 id="connecting2"></h2>
+</div>
+</div>
+<canvas touch-action="none" id="canvas"></canvas>
+<div id="info">
+<div class="infotext">
+<span id="nearby">0 nearby</span>
+<span id="coords">0,0</span>
+</div>
+<div class="buttons">
+<div id="home" title="Home" class="infobtn"><img alt="home" src="/static/home.svg"></div>
+<div id="copy" title="Copy" class="infobtn"><img id="copyico" alt="copy" src="/static/copy.svg"></div>
+<div id="paste" title="Paste" class="infobtn"><img id="pasteico" alt="paste" src="/static/paste.svg"></div>
+<div id="openmenu" title="Colours" class="infobtn"><img alt="colour" src="/static/palette.svg"></div>
+<div id="options" title="Options" class="infobtn"><img alt="options" src="/static/settings.svg"></div>
+<div id="theme" title="Theme" class="infobtn"><img id="themeico" alt="theme" src="/static/sun.svg"></div>
+<div id="goto" title="Teleport" class="infobtn"><img alt="arrow" src="/static/go.svg"></div>
+</div>
+</div>
+<div id="decorations">
+<div class="decoration" id="bold">
+<img alt="bold" title="bold" src="/static/bold.svg">
+</div>
+<div class="decoration" id="italic">
+<img alt="italic" title="italic" src="/static/italic.svg">
+</div>
+<div class="decoration" id="underline">
+<img alt="underline" title="underline" src="/static/underline.svg">
+</div>
+<div class="decoration" id="strikethrough">
+<img alt="strikethrough" title="strikethrough" src="/static/strikethrough.svg">
+</div>
+</div>
+<script src="/static/pep.min.js"></script>
+<script src="/static/textwall.js"></script>
+<script>
+		/*if ('serviceWorker' in navigator) {
+		window.addEventListener('load', function() {
+			navigator.serviceWorker.register('/service-worker.js').then(function(registration) {})
+		});
+		}*/
+	</script>
+</body>
+</html>

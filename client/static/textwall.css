@@ -1,0 +1,644 @@
+body{
+    margin:0;
+    overflow:hidden;
+    touch-action:none;
+    position:static
+}
+*{
+    font-family:ubuntu mono,monospace,courier new,Courier,special;
+    -webkit-tap-highlight-color:transparent
+}
+canvas{
+    touch-action:none;
+    cursor:text;
+    position:absolute;
+    z-index:-1
+}
+h3{
+    margin-top:10px;
+    margin-bottom:10px
+}
+.bold{
+    font-weight:700
+}
+.hidden{
+    display:none!important
+}
+#clipboard,#textarea{
+    width:0;
+    height:0;
+    transform:translate(-200px,-200px);
+    position:absolute
+}
+.connectingtext{
+    display:block;
+    text-align:center;
+    user-select:none
+}
+#nametag{
+    width:100px;
+    margin-right:5px
+}
+.infotext{
+    display:flex;
+    justify-content:center;
+    user-select:none
+}
+#nearby{
+    margin-right:15px;
+    cursor:pointer
+}
+#connecting{
+    position:absolute;
+    width:100vw;
+    height:100vh;
+    background-color:rgba(30,30,30,.8);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:4;
+    color:#fff;
+    transition:opacity .5s
+}
+#info{
+    background-color:rgba(30,30,30,.8);
+    color:#fff;
+    padding:5px 0;
+    font-size:18px;
+    pointer-events:auto;
+    transition:all .5s;
+    z-index:2;
+    position:absolute;
+    bottom:0;
+    transition:all .5s
+}
+#decorations{
+    position:absolute;
+    z-index:4;
+    display:none;
+    flex-direction:row;
+    background-color:rgba(30,30,30,.8);
+    border-radius:5px;
+    width:145px;
+    justify-content:space-evenly
+}
+.decoration{
+    background-color:#b9b9b9;
+    border-radius:25%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:5px 0;
+    cursor:pointer;
+    transition:all 100ms
+}
+.decoration.enabled{
+    background-color:#fff
+}
+.decoration>img{
+    filter:opacity(.5);
+    width:30px
+}
+.decoration.enabled>img{
+    filter:opacity(1)
+}
+#usermenu{
+    background-color:rgba(30,30,30,.8);
+    color:#fff;
+    position:absolute;
+    padding:5px;
+    margin-top:10px;
+    border-radius:0 5px 5px 0;
+    transform:translateX(-105%);
+    pointer-events:auto;
+    transition:all .5s;
+    display:flex;
+    width:250px;
+    height:540px;
+    max-height:70vh;
+    justify-content:space-between;
+    -webkit-user-select:none;
+    user-select:none
+}
+#admin,#wallsettings{
+    display:none
+}
+#addmembers{
+    margin:0 10px
+}
+#memberlist{
+    display:flex;
+    flex-wrap:wrap;
+    margin-top:5px
+}
+.member{
+    padding:5px;
+    margin:3px;
+    background-color:rgba(255,255,255,.35);
+    border-radius:5px;
+    font-size:12px;
+    cursor:pointer
+}
+.member:hover{
+    text-decoration:line-through;
+    color:red
+}
+#register,#loggedin,#accountsettings{
+    display:none
+}
+.buttonlink{
+    text-decoration:underline;
+    color:#00b7ff;
+    cursor:pointer
+}
+#optionsmenu{
+    width:100%;
+    overflow:auto;
+    -ms-overflow-style:none;
+    overflow-wrap:break-word;
+    scrollbar-width:none;
+    max-height:526px
+}
+input{
+    vertical-align:middle;
+    margin-top:5px
+}
+.sidething{
+    display:flex;
+    flex-direction:column
+}
+#closemenu{
+    display:flex;
+    justify-content:center;
+    margin-bottom:4px;
+    transition:all .1s
+}
+#closemenu:active,#closeteleport:active{
+    transform:scale(.9)
+}
+#colourlist{
+    transition:none;
+    overflow:auto;
+    -ms-overflow-style:none;
+    scrollbar-width:none;
+    background-color:rgba(255,255,255,.35);
+    border-radius:5px
+}
+#colourlist::-webkit-scrollbar,#optionsmenu::-webkit-scrollbar{
+    display:none
+}
+.colour{
+    width:30px;
+    height:30px;
+    margin:3px;
+    border-radius:25%;
+    box-sizing:border-box;
+    transition:all 50ms
+}
+.colour.selected{
+    border:3px solid #fff
+}
+#zoom{
+    width:150px
+}
+th,td{
+    padding:5px;
+    text-align:left;
+    border:1px solid #fff
+}
+#coords{
+    cursor:pointer
+}
+.infobtn{
+    width:20px;
+    padding:0 10px;
+    vertical-align:middle;
+    transition:all .1s;
+    flex-grow:1;
+    display:flex;
+    justify-content:center;
+    align-items:center
+}
+.infobtn>img,.button{
+    -webkit-user-drag:none;
+    -khtml-user-drag:none;
+    -moz-user-drag:none;
+    -o-user-drag:none
+}
+.infobtn:active{
+    transform:scale(.9);
+    background-color:rgba(30,30,30,.3)
+}
+.container{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:absolute;
+    top:0;
+    z-index:3;
+    width:100vw;
+    height:0
+}
+#toast{
+    position:absolute;
+    background-color:rgba(30,30,30,.8);
+    color:#fff;
+    border-radius:5px;
+    margin:5px;
+    transition:all .5s;
+    padding:5px;
+    max-width:80vw;
+    overflow-wrap:break-word;
+    top:-30px;
+    user-select:none;
+    z-index:3;
+    max-height:0;
+    overflow-y:hidden
+}
+#toast.toasting{
+    top:20px;
+    max-height:100vh
+}
+#teleport{
+    position:absolute;
+    display:block;
+    z-index:2;
+    text-align:center;
+    transition:all .5s;
+    background-color:rgba(30,30,30,.8);
+    color:#fff;
+    margin:15px;
+    padding:5px 15px 15px;
+    border-radius:5px;
+    width:330px;
+    max-width:85vw;
+    top:-400px;
+    user-select:none;
+    max-height:300px;
+    overflow-y:hidden
+}
+#teleport.open{
+    top:40px;
+    max-height:100vh
+}
+#teleport>form>input,.coordinput>div>input{
+    margin-bottom:5px
+}
+#tpx,#tpy{
+    width:70px
+}
+.coordinput{
+    text-align:left;
+    display:flex;
+    justify-content:center
+}
+.tptitle{
+    font-size:26px;
+    text-align:left;
+    display:block;
+    margin-bottom:10px;
+    font-weight:700
+}
+#closeteleport{
+    position:absolute;
+    transition:all .1s;
+    top:5px;
+    right:5px
+}
+#walllist{
+    text-align:left
+}
+#walllist>span>a{
+    color:#fff
+}
+#walllist>span{
+    font-size:20px;
+    font-weight:700
+}
+.walllist{
+    list-style:none;
+    padding:0;
+    text-align:left;
+    height:75px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    margin-bottom:5px
+}
+.walllist a{
+    width:100%;
+    display:block;
+    padding:3px 0;
+    overflow-wrap:break-word;
+    word-break:break-all
+}
+.walllist li{
+    display:flex
+}
+.walllist li:hover{
+    background-color:rgba(255,255,255,.1)
+}
+.walllist img{
+    margin-right:3px;
+    vertical-align:middle
+}
+#thememenu,#fontmenu{
+    margin-top:10px;
+    margin-right:20px
+}
+#fontmenu>input{
+    vertical-align:unset
+}
+#customfont{
+    width:110px
+}
+#customfontsize{
+    width:40px
+}
+#chat{
+    position:absolute;
+    top:0;
+    right:0;
+    display:flex;
+    height:300px;
+    transition:all .5s;
+    pointer-events:none;
+    transform:translateX(220px)
+}
+#chat.open{
+    transform:translateX(0px)
+}
+.chatcontainer{
+    width:200px;
+    background-color:rgba(30,30,30,.8);
+    border-radius:0 0 0 5px;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    pointer-events:auto
+}
+.msgcontainer{
+    display:flex;
+    justify-content:stretch
+}
+#chatbox{
+    background-color:#fff;
+    border-radius:5px;
+    margin-bottom:5px;
+    width:100%;
+    height:100%;
+    font-size:13px;
+    word-wrap:break-word;
+    overflow:auto
+}
+#chatbox>p{
+    margin:5px
+}
+#chatmsg{
+    border-radius:5px;
+    border:none;
+    width:100%;
+    background-color:rgba(255,255,255,.8);
+    user-select:none
+}
+#sendmsg{
+    margin:5px;
+    background-color:rgba(0,0,0,.3);
+    border-radius:5px;
+    width:20px;
+    padding:5px;
+    margin:5px 0 0 5px
+}
+#chatbutton{
+    background-color:rgba(30,30,30,.8);
+    border-radius:0 0 0 5px;
+    padding:10px;
+    margin-bottom:24px;
+    pointer-events:auto;
+    position:relative;
+    cursor:pointer
+}
+#unread{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background-color:#d44b4b;
+    position:absolute;
+    left:-2px;
+    bottom:-2px;
+    display:none
+}
+#unread.show{
+    display:block
+}
+.button{
+    cursor:pointer;
+    transition:all .1s;
+    user-select:none
+}
+.button:active{
+    transform:scale(.9)
+}
+@font-face{
+    font-family:ubuntu mono;
+    src:url(fonts/UbuntuMono-Regular.ttf)
+}
+@font-face{
+    font-family:ubuntu mono;
+    src:url(fonts/UbuntuMono-Bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:ubuntu mono;
+    src:url(fonts/UbuntuMono-Italic.ttf);
+    font-style:italic
+}
+@font-face{
+    font-family:ubuntu mono;
+    src:url(fonts/UbuntuMono-BoldItalic.ttf);
+    font-weight:700;
+    font-style:oblique
+}
+@font-face{
+    font-family:inconsolata;
+    src:url(fonts/Inconsolata-Regular.ttf)
+}
+@font-face{
+    font-family:inconsolata;
+    src:url(fonts/Inconsolata-Bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:ibm plex mono;
+    src:url(fonts/IBMPlexMono-Regular.ttf)
+}
+@font-face{
+    font-family:ibm plex mono;
+    src:url(fonts/IBMPlexMono-Bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:ibm plex mono;
+    src:url(fonts/IBMPlexMono-Italic.ttf);
+    font-style:italic
+}
+@font-face{
+    font-family:ibm plex mono;
+    src:url(fonts/IBMPlexMono-BoldItalic.ttf);
+    font-weight:700;
+    font-style:oblique
+}
+@font-face{
+    font-family:roboto mono;
+    src:url(fonts/RobotoMono-Regular.ttf)
+}
+@font-face{
+    font-family:roboto mono;
+    src:url(fonts/RobotoMono-Bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:roboto mono;
+    src:url(fonts/RobotoMono-Italic.ttf);
+    font-style:italic
+}
+@font-face{
+    font-family:roboto mono;
+    src:url(fonts/RobotoMono-BoldItalic.ttf);
+    font-weight:700;
+    font-style:oblique
+}
+@font-face{
+    font-family:courier prime;
+    src:url(fonts/CourierPrime-Regular.ttf)
+}
+@font-face{
+    font-family:courier prime;
+    src:url(fonts/CourierPrime-Bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:courier prime;
+    src:url(fonts/CourierPrime-Italic.ttf);
+    font-style:italic
+}
+@font-face{
+    font-family:courier prime;
+    src:url(fonts/CourierPrime-BoldItalic.ttf);
+    font-weight:700;
+    font-style:oblique
+}
+@font-face{
+    font-family:cousine;
+    src:url(fonts/Cousine-Regular.ttf)
+}
+@font-face{
+    font-family:cousine;
+    src:url(fonts/Cousine-Bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:cousine;
+    src:url(fonts/Cousine-Italic.ttf);
+    font-style:italic
+}
+@font-face{
+    font-family:cousine;
+    src:url(fonts/Cousine-BoldItalic.ttf);
+    font-weight:700;
+    font-style:oblique
+}
+@font-face{
+    font-family:pointfree;
+    src:url(fonts/pointfree.ttf)
+}
+@font-face{
+    font-family:pointfree;
+    src:url(fonts/pointfree-bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:monofur;
+    src:url(fonts/monof55.ttf)
+}
+@font-face{
+    font-family:monofur;
+    src:url(fonts/monof56.ttf);
+    font-style:italic
+}
+@font-face{
+    font-family:fantasque sans mono;
+    src:url(fonts/FantasqueSansMono-Regular.ttf)
+}
+@font-face{
+    font-family:fantasque sans mono;
+    src:url(fonts/FantasqueSansMono-Bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:fantasque sans mono;
+    src:url(fonts/FantasqueSansMono-Italic.ttf);
+    font-style:italic
+}
+@font-face{
+    font-family:fantasque sans mono;
+    src:url(fonts/FantasqueSansMono-BoldItalic.ttf);
+    font-weight:700;
+    font-style:oblique
+}
+@font-face{
+    font-family:libertinus mono;
+    src:url(fonts/LibertinusMono-Regular.ttf)
+}
+@font-face{
+    font-family:libertinus mono;
+    src:url(fonts/LibertinusMono-Bold.ttf);
+    font-weight:700
+}
+@font-face{
+    font-family:fixedsys;
+    src:url(fonts/fixedsys.ttf)
+}
+@font-face{
+    font-family:special;
+    src:url(fonts/special.ttf?v=10)
+}
+@font-face{
+    font-family:cutive mono;
+    src:url(fonts/CutiveMono-Regular.ttf)
+}
+.buttons{
+    display:flex;
+    justify-content:stretch;
+    width:100vw;
+    height:40px;
+    user-select:none
+}
+@media only screen and (min-width:750px){
+    #info{
+        top:0;
+        bottom:unset;
+        border-radius:0 0 5px 0;
+        padding:5px
+    }
+    .infobtn>img{
+        width:20px
+    }
+    .buttons{
+        width:100%;
+        height:unset
+    }
+    #usermenu{
+        margin-top:60px
+    }
+}
+ul::-webkit-scrollbar{
+    width:8px
+}
+ul::-webkit-scrollbar-track{
+    background:rgba(255,255,255,.1);
+    border-radius:5px
+}
+ul::-webkit-scrollbar-thumb{
+    background-color:rgba(255,255,255,.2);
+    border-radius:5px
+}
