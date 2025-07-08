@@ -94,8 +94,8 @@
         }
         var a, o = "/";
         const i = document.getElementById(n(525)),
-            c = document[n(628)]("connecting"),
-            l = document[n(628)](n(215)),
+            c = document.getElementById("connecting"),
+            l = document.getElementById(n(215)),
             u = -1 != navigator.userAgent[n(198)]("iPhone") || -1 != navigator[n(612)][n(198)](n(377)) || -1 != navigator.userAgent.indexOf(n(405)),
             s = -1 != navigator[n(612)][n(198)](n(526)),
             d = u ? 40 : 200,
@@ -104,13 +104,13 @@
             m = !1,
             h = document[n(310)],
             y = !0;
-        const g = document[n(628)]("toast");
+        const g = document.getElementById("toast");
         var p;
-        const b = document[n(628)](n(345)),
-            x = document[n(628)](n(346)),
-            w = document[n(628)](n(368)),
-            M = document[n(628)](n(328));
-        var k = document[n(628)](n(332));
+        const b = document.getElementById(n(345)),
+            x = document.getElementById(n(346)),
+            w = document.getElementById(n(368)),
+            M = document.getElementById(n(328));
+        var k = document.getElementById(n(332));
         k[n(208)]("id");
         var E = k.getContext("2d", {
             alpha: !1
@@ -122,23 +122,23 @@
             A = I,
             T = Xr(A, 10);
         const B = document.getElementById(n(618)),
-            F = document[n(628)](n(406)),
-            P = document[n(628)](n(523)),
-            L = document[n(628)]("thememenu"),
+            F = document.getElementById(n(406)),
+            P = document.getElementById(n(523)),
+            L = document.getElementById("thememenu"),
             O = document.getElementById(n(365)),
-            R = document[n(628)](n(333)),
-            D = document[n(628)]("fontmenu");
+            R = document.getElementById(n(333)),
+            D = document.getElementById("fontmenu");
         var N = 0;
         var j = 0,
             U = !1,
             W = "",
             H = "",
             K = !1;
-        const X = document[n(628)]("wallsettings"),
-            z = document[n(628)](n(366)),
-            q = document[n(628)](n(531));
+        const X = document.getElementById("wallsettings"),
+            z = document.getElementById(n(366)),
+            q = document.getElementById(n(531));
         var Y;
-        const J = document[n(628)](n(415)),
+        const J = document.getElementById(n(415)),
             V = String.fromCharCode(10240),
             Z = String[n(354)](27),
             $ = {
@@ -222,7 +222,7 @@
         const _ = new Map;
         _[n(644)](n(474), void 0), _[n(644)](n(682), void 0), _[n(644)]("Fixed", void 0);
         const ee = Object.keys($)[n(500)],
-            te = document[n(628)](n(372));
+            te = document.getElementById(n(372));
         for (var ne = 0; te[n(500)] > 0; ne++);
         for (ne = 0; ne < ee; ne++) option = document[n(581)](n(667)), option[n(538)] = Object.keys($)[ne], te.add(option);
         te[n(356)] = G;
@@ -232,11 +232,11 @@
         }));
         const ae = {
             bold: {
-                el: document[n(628)]("bold"),
+                el: document.getElementById("bold"),
                 enabled: !1
             },
             italic: {
-                el: document[n(628)](n(244)),
+                el: document.getElementById(n(244)),
                 enabled: !1
             },
             underline: {
@@ -274,8 +274,8 @@
             br(t(583), Boolean(8 & e)), br(t(244), Boolean(4 & e)), br("underline", Boolean(2 & e)), br(t(468), Boolean(1 & e))
         }
         const ue = 192,
-            se = [n(461), n(535), "#D4D7D9", n(312), "#FF4500", n(221), n(658), n(669), n(450), "#00CC78", n(316), n(317), n(229), n(634), n(685), "#BE0039", "#00A368", "#00756F", n(587), n(445), n(559), "#FF3881", n(501), n(286), "#FFF8B8", "#00CCC0", n(264), "#E4ABFF", n(376), n(539), n(417)],
-            de = [n(617), "grey", "light grey", n(629), n(251), n(703), n(266), n(646), n(255), n(231), n(260), n(357), n(480), "purple", n(347), n(371), "dark green", "dark teal", n(554), "indigo", "periwinkle", n(277), "dark brown", n(350), "pale yellow", n(206), n(407), n(579), n(200), n(385), n(614)],
+            se = ["#000000","#717171","#DDDDDD","#FF99CC","#e73717","#F89915","#A85F11","#FFE829","#8FF44B","#13DE0D","#69B9FF","#2555F2","#0343A7","#B324E6","#9410C7","#C71100","#23AE15","#0789AB","#1fc0d9","#3916BA","#5F1DFC","#FF2AAD","#BA8E14","#670500","#FFF171","#77DDED","#9775FF","#BB73FF","#e408a2","#F1A336","#383838"],
+            de = ["mono", "grey", "silver", "light pink", "watermelon", "orange", "brown", "yellow", "mint", "green", "light blue", "blue", "dark blue", "purple", "violet", "red", "dark green", "teal", "cyan", "indigo", "blueberry", "pink", "gold", "maroon", "ivory", "diamond", "lavender", "lilac", "magenta", "beige", "dark grey"],
             fe = [0, 30, 1, 2, 23, 15, 4, 5, 7, 24, 16, 9, 8, 17, 18, 25, 12, 11, 10, 19, 20, 26, 14, 13, 27, 28, 21, 3, 22, 6, 29];
 
         function ve(e) {
@@ -329,7 +329,7 @@
             je = "",
             Ue = 0,
             We = 0,
-            He = document[n(628)]("coords"),
+            He = document.getElementById("coords"),
             Ke = document.getElementById("nearby"),
             Xe = performance[n(430)](),
             ze = {
@@ -370,30 +370,30 @@
         };
         const tt = {
             showothercurs: document.getElementById(n(442)),
-            shownametags: document[n(628)](n(567)),
-            showchat: document[n(628)](n(613)),
+            shownametags: document.getElementById(n(567)),
+            showchat: document.getElementById(n(613)),
             disablecolour: document.getElementById(n(577)),
-            smoothpanning: document[n(628)](n(358)),
+            smoothpanning: document.getElementById(n(358)),
             smoothcursors: document.getElementById("smoothcursors"),
-            copycolour: document[n(628)](n(261)),
-            copydecorations: document[n(628)](n(693)),
-            rainbow: document[n(628)]("rainbow"),
-            anonymous: document[n(628)](n(280))
+            copycolour: document.getElementById(n(261)),
+            copydecorations: document.getElementById(n(693)),
+            rainbow: document.getElementById("rainbow"),
+            anonymous: document.getElementById(n(280))
         };
         tt.showothercurs[n(427)] = !0, tt[n(567)][n(427)] = !0, tt.showchat[n(427)] = !0, tt[n(577)][n(427)] = !1, tt[n(358)][n(427)] = !0, tt[n(223)].checked = !0;
         const nt = {
-            protect: document[n(628)]("protect"),
+            protect: document.getElementById("protect"),
             clear: document.getElementById(n(222)),
-            readOnly: document[n(628)](n(706)),
+            readOnly: document.getElementById(n(706)),
             private: document.getElementById("private"),
-            hideCursors: document[n(628)]("hidecursors"),
-            disableChat: document[n(628)]("disablechat"),
-            disableColour: document[n(628)](n(664)),
+            hideCursors: document.getElementById("hidecursors"),
+            disableChat: document.getElementById("disablechat"),
+            disableColour: document.getElementById(n(664)),
             disableBraille: document.getElementById(n(633))
         };
         var rt = 1,
             at = 1,
-            ot = document[n(628)](n(464));
+            ot = document.getElementById(n(464));
 
         function it(e, t) {
             var r = n;
@@ -403,8 +403,8 @@
         function ct() {
             it(ot[n(356)] / 10, !0)
         }
-        var lt = document[n(628)](n(691)),
-            ut = document[n(628)]("loginlink"),
+        var lt = document.getElementById(n(691)),
+            ut = document.getElementById("loginlink"),
             st = document.getElementById(n(697));
 
         function dt(e, t) {
@@ -1066,23 +1066,23 @@
         })), He.addEventListener(n(383), (function() {
             var e = n;
             history[e(308)]({}, null, o), ar(location.protocol + "//" + location[e(653)] + o + "?x=" + Ce.x + e(465) + -Ce.y), ir(e(400), 1e3), i[e(456)]()
-        })), document[n(628)](n(610))[n(216)]("click", (function() {
+        })), document.getElementById(n(610))[n(216)]("click", (function() {
             ur(0)
-        })), document[n(628)](n(242)).addEventListener(n(383), (function() {
+        })), document.getElementById(n(242)).addEventListener(n(383), (function() {
             ur(1)
         })), document.getElementById("options")[n(216)](n(383), (function() {
             ur(2)
-        })), document[n(628)](n(228))[n(216)]("click", (function() {
+        })), document.getElementById(n(228))[n(216)]("click", (function() {
             $n(), Zn(0, 0)
-        })), document[n(628)](n(228))[n(216)](n(320), (function(e) {
+        })), document.getElementById(n(228))[n(216)](n(320), (function(e) {
             var t = n;
             e[t(423)](), Cn(t(391), t(622)) && Zn(0, 0)
-        })), document[n(628)](n(650))[n(216)](n(383), or), document[n(628)](n(462))[n(216)](n(383), (function() {
+        })), document.getElementById(n(650))[n(216)](n(383), or), document.getElementById(n(462))[n(216)](n(383), (function() {
             var e = n;
             navigator[e(345)][e(340)]()[e(413)]((function(t) {
                 var n = e;
                 tr(t);
-                var r = document[n(628)](n(326));
+                var r = document.getElementById(n(326));
                 r.src = n(207), setTimeout((function() {
                     r[n(615)] = "/static/paste.svg"
                 }), 1e3), en()
@@ -1095,7 +1095,7 @@
             vt(G)
         })), R[n(216)]("input", (function() {
             vt(G)
-        })), document[n(628)](n(237))[n(216)](n(383), dr), x[n(216)](n(383), (function(e) {
+        })), document.getElementById(n(237))[n(216)](n(383), dr), x[n(216)](n(383), (function(e) {
             var t = n,
                 r = JSON[t(351)](e[t(510)][t(427)]);
             switch (e.target) {
@@ -1138,7 +1138,7 @@
                 case st:
                     dt(!0)
             }
-        })), document[n(628)]("closeteleport").addEventListener(n(383), (function() {
+        })), document.getElementById("closeteleport").addEventListener(n(383), (function() {
             var e = n;
             M.classList[e(627)](e(452))
         })), document.getElementById(n(569))[n(216)]("click", (function(e) {
@@ -1146,7 +1146,7 @@
             e[t(423)]();
             var r = document[t(628)](t(314));
             vr(r[t(356)]), r.blur()
-        })), document[n(628)]("tpword")[n(216)](n(205), (function() {
+        })), document.getElementById("tpword")[n(216)](n(205), (function() {
             var e = n,
                 t = document[e(628)]("tpword").value[e(217)](/^\/|\/$/g, ""),
                 r = 0 == t || t[e(482)]("~") ? {
@@ -1154,7 +1154,7 @@
                     y: 0
                 } : Lr(t);
             document[e(628)](e(342))[e(356)] = r.x, document[e(628)](e(702))[e(356)] = -r.y
-        })), document[n(628)](n(640)).addEventListener(n(383), (function(e) {
+        })), document.getElementById(n(640)).addEventListener(n(383), (function(e) {
             var t = n;
             e[t(423)]();
             var r = document[t(628)](t(342)),
@@ -1171,12 +1171,12 @@
         })), ot[n(216)](n(205), ct), ot.addEventListener(n(506), ct), Se[n(216)]("message", (function(e) {
             var t = n;
             a && a[t(348)] == a.OPEN && a[t(197)](e[t(698)])
-        })), document[n(628)]("chatbutton")[n(216)](n(383), (function() {
+        })), document.getElementById("chatbutton")[n(216)](n(383), (function() {
             var e = n;
             hn[e(676)][e(551)](e(452)) ? hn[e(676)].remove(e(452)) : (hn[e(676)][e(608)](e(452)), yn[e(676)][e(627)](e(259)), gn())
-        })), document[n(628)]("sendmsg")[n(216)](n(383), bn), document[n(628)]("chatmsg")[n(216)]("keyup", (function(e) {
+        })), document.getElementById("sendmsg")[n(216)](n(383), bn), document.getElementById("chatmsg")[n(216)]("keyup", (function(e) {
             13 == e[n(232)] && bn(e)
-        })), document[n(628)](n(483))[n(216)](n(383), (function(e) {
+        })), document.getElementById(n(483))[n(216)](n(383), (function(e) {
             var t = n;
             if (e.isTrusted) {
                 var r = document[t(628)](t(268)),
@@ -1195,11 +1195,11 @@
                     register: [r[t(356)], o.value]
                 }))) : ir("Passwords do not match.", 3e3) : ir(t(488), 3e3) : ir(t(336), 3e3) : ir("Username is invalid.", 3e3)
             }
-        })), document.getElementById("login")[n(216)](n(293), fn), document[n(628)](n(459))[n(216)](n(293), fn), document.getElementById("accsettinglink")[n(216)](n(383), (function() {
+        })), document.getElementById("login")[n(216)](n(293), fn), document.getElementById(n(459))[n(216)](n(293), fn), document.getElementById("accsettinglink")[n(216)](n(383), (function() {
             var e = n,
                 t = document[e(628)](e(542));
             t[e(270)][e(550)] = e(467) == t[e(270)][e(550)] ? e(507) : e(467), document.getElementById(e(605))[e(403)] = t[e(503)] - 60
-        })), document[n(628)]("changenameform")[n(216)](n(293), fn), document[n(628)](n(192)).addEventListener(n(383), (function(e) {
+        })), document.getElementById("changenameform")[n(216)](n(293), fn), document.getElementById(n(192)).addEventListener(n(383), (function(e) {
             var t = n;
             if (e[t(294)]) {
                 var r = document[t(628)](t(626)),
@@ -1208,7 +1208,7 @@
                     namechange: [r.value, o.value]
                 }))) : ir("Please type your password.", 3e3) : ir(t(661), 3e3) : ir("Please type a new username.", 3e3) : ir(t(287), 3e3)
             }
-        })), document[n(628)]("changepassform").addEventListener(n(293), fn), document[n(628)](n(603))[n(216)](n(383), (function(e) {
+        })), document.getElementById("changepassform").addEventListener(n(293), fn), document.getElementById(n(603))[n(216)](n(383), (function(e) {
             var t = n;
             if (e.isTrusted) {
                 var r = document[t(628)](t(548)),
@@ -1218,7 +1218,7 @@
                     passchange: [r[t(356)], o[t(356)]]
                 }))) : ir(t(470), 3e3) : ir(t(309), 3e3) : ir(t(705), 3e3) : ir("Please type your password.", 3e3)
             }
-        })), document[n(628)](n(304))[n(216)](n(293), fn), document[n(628)](n(441))[n(216)](n(383), (function(e) {
+        })), document.getElementById(n(304))[n(216)](n(293), fn), document.getElementById(n(441))[n(216)](n(383), (function(e) {
             var t = n;
             if (e.isTrusted) {
                 var r = document[t(628)](t(637));
@@ -1261,14 +1261,14 @@
             a[t(197)](Or({
                 db: e[t(510)][t(427)]
             }))
-        })), document[n(628)](n(515))[n(216)]("click", (function(e) {
+        })), document.getElementById(n(515))[n(216)]("click", (function(e) {
             var t = n;
             e[t(423)](), document[t(628)](t(605));
             var r = document[t(628)](t(478)),
                 o = document[t(628)](t(446)),
                 i = r.value.toLowerCase();
             r[t(356)] = "", (i.length = function(e) {
-                for (var n = t, r = document[n(628)]("memberlist"), a = 0; a < r[n(625)]; a++)
+                for (var n = t, r = document.getElementById("memberlist"), a = 0; a < r[n(625)]; a++)
                     if (r.children[a][n(537)] == e) return !0;
                 return !1
             }(i) || i == je) || (mn[t(674)](i) ? o.childElementCount >= 20 ? ir(t(553), 3e3) : a[t(197)](Or({
@@ -1284,12 +1284,12 @@
             "confirm" == r[t(356)].toLowerCase() ? (r.parentElement[t(436)](r.previousSibling), r.parentNode[t(436)](r), a[t(197)](Or({
                 dw: 0
             })), Cn(t(391), t(622)), ir("Deleting wall...", 3e3)) : ir(t(492), 3e3)
-        })), document[n(628)]("l")[n(216)]("click", (function(e) {
+        })), document.getElementById("l")[n(216)]("click", (function(e) {
             var t = n;
             m && a[t(197)](Or({
                 l: e[t(510)][t(427)]
             }))
-        })), document[n(628)](n(509)).addEventListener(n(383), (function() {
+        })), document.getElementById(n(509)).addEventListener(n(383), (function() {
             var e = n;
             if (m) {
                 document[e(628)](e(290))[e(230)] = "";
@@ -1300,17 +1300,17 @@
                     r[e(403)] = r[e(712)]
                 }
             }
-        })), document[n(628)]("sendalert")[n(216)](n(383), (function() {
+        })), document.getElementById("sendalert")[n(216)](n(383), (function() {
             var e = n,
                 t = document[e(628)]("alerttext")[e(356)];
             m && 0 != t[e(500)] && a.send(Or({
                 alert: t
             }))
-        })), document[n(628)](n(233))[n(216)](n(383), (function() {
+        })), document.getElementById(n(233))[n(216)](n(383), (function() {
             m && a[n(197)](Or({
                 reload: !0
             }))
-        })), document[n(628)]("delete").addEventListener(n(383), (function() {
+        })), document.getElementById("delete").addEventListener(n(383), (function() {
             var e = n;
             if (m) {
                 var t = document[e(628)](e(188)).value;
@@ -1328,8 +1328,8 @@
             }
         })), b[n(388)]("id", n(525)), i.setAttribute("id", n(345));
         var mn = /^[\w.-]+$/;
-        const hn = document[n(628)](n(394)),
-            yn = document[n(628)](n(220));
+        const hn = document.getElementById(n(394)),
+            yn = document.getElementById(n(220));
 
         function gn() {
             var e = n,
@@ -1858,7 +1858,7 @@
         function cr() {
             Ce.x = Ce.start, Ce.y++, Hn()
         }
-        null == navigator[n(345)][n(340)] && (document[n(628)](n(462)).style[n(550)] = n(507));
+        null == navigator[n(345)][n(340)] && (document.getElementById(n(462)).style[n(550)] = n(507));
         var lr = 0;
 
         function ur(e) {
