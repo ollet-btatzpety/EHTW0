@@ -721,7 +721,7 @@ function init_ws() {
 				if(user.length > 64) return;
 				if(pass.length > 64) return;
 
-				var userObj = (await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)")).get(user);
+				var userObj = (await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [user]));
 				if(userObj) {
 					var db_user = userObj.username;
 					var db_id = userObj.id;
