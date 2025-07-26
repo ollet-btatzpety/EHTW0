@@ -447,7 +447,7 @@ function init_ws() {
 				}
 				
 				
-				var world = await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1) AND LOWER(name) = LOWER($2);", [namespace, pathname]).rows[0];
+				var world = (await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1) AND LOWER(name) = LOWER($2);", [namespace, pathname])).rows[0];
 				console.log(world);
 				if(!world) {
 					sdata.worldAttr = {};
