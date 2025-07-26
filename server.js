@@ -956,7 +956,7 @@ function init_ws() {
 				if(!isOwner) return;
 				await pool.query("UPDATE worlds SET namespace=$1 WHERE id=$2", ["del-" + Math.random(), sdata.connectedWorldId]);
 				var kWorld = sdata.connectedWorldId;
-				wss.clients.forEach(function(sock) {
+				wss.clients.forEach(async function(sock) {
 					if(!sock || !sock.sdata) return;
 					if(sock.sdata.connectedWorldId == kWorld) {
 						await evictClient(sock);
@@ -999,7 +999,7 @@ function init_ws() {
 								await pool.query("UPDATE worlds SET namespace=$1 WHERE LOWER(namespace)=LOWER($2)", [newUser, oldUser]);
 								await pool.query("UPDATE tokens SET username=$1 WHERE LOWER(user_id)=LOWER($2)", [newUser, account.id]);
 								var kWorld = sdata.connectedWorldId;
-								wss.clients.forEach(function(sock) {
+								wss.clients.forEach(async function(sock) {
 									if(!sock || !sock.sdata) return;
 									if(sock.sdata.connectedWorldId == kWorld) {
 										await evictClient(sock);
