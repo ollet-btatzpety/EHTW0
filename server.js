@@ -308,13 +308,15 @@ async function evictClient(ws) {
 		rc: ws.sdata.clientId
 	}), ws);
 				
+	
+
+	var worldInfo = (await pool.query("SELECT * FROM worlds WHERE id=1")).rows[0];
+	ws.sdata.worldAttr = worldInfo.attributes;
 	ws.sdata.connectedWorldNamespace = "textwall";
 	ws.sdata.connectedWorldName = "main";
 	ws.sdata.connectedWorldId = 1;
 	ws.sdata.isMember = false;
 	ws.sdata.isConnected = true;
-	
-	var worldInfo = (await pool.query("SELECT * FROM worlds WHERE id=1")).rows[0];
 	send(ws, msgpack.encode({
 		j: ["textwall", "main"]
 	}));
@@ -724,7 +726,7 @@ function init_ws() {
 				if(user.length > 64) return;
 				if(pass.length > 64) return;
 
-				var userObj = (await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [user]));
+				var userObj = (await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [user])).rows[0];
 				if(userObj) {
 					var db_user = userObj.username;
 					var db_id = userObj.id;
