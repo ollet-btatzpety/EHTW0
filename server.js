@@ -47,6 +47,7 @@ async function runserver() {
 	var app = express();
 	server = http.createServer(app);
 	app.use(express.static(__dirname + "/client"));
+	app.get("/", (req, res) => res.sendFile(__dirname + "/client/index.html"))
 	server.listen(port, function() {
 		var addr = server.address();
 		console.log("TextWall server is hosted on " + addr.address + ":" + addr.port);
@@ -311,6 +312,9 @@ async function evictClient(ws) {
 	ws.sdata.connectedWorldName = "main";
 	ws.sdata.connectedWorldId = 1;
 	ws.sdata.isMember = false;
+	ws.sdata.isConnected = true;
+	
+	var worldInfo = (await pool.query("SELECT * FROM worlds WHERE id=1")).rows[0];
 	send(ws, msgpack.encode({
 		j: ["textwall", "main"]
 	}));
@@ -320,8 +324,6 @@ async function evictClient(ws) {
 	send(ws, msgpack.encode({
 		b: [-1000000000000, 1000000000000, -1000000000000, 1000000000000]
 	}));
-	ws.sdata.isConnected = true;
-	var worldInfo = (await pool.query("SELECT * FROM worlds WHERE id=1")).rows[0];
 	sendWorldAttrs(ws, worldInfo);
 	dumpCursors(ws);
 }
@@ -505,10 +507,7 @@ function init_ws() {
 					
 					await sendOwnerStuff(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace);
 				} else if(sdata.isAuthenticated) {
-					if(attr.private) {
-						await evictClient(ws);
-						return;
-					}
+					
 					var memberCheck = (await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId])).rows[0];
 					if(memberCheck) {
 						send(ws, msgpack.encode({
@@ -519,6 +518,10 @@ function init_ws() {
 						send(ws, msgpack.encode({
 							perms: 0
 						}));
+					}
+					if(attr.private && !sdata.isMember) {
+						await evictClient(ws);
+						return;
 					}
 					await sendWorldList(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace, true);
 				} else {
