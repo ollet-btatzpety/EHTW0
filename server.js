@@ -47,7 +47,7 @@ async function runserver() {
 	var app = express();
 	server = http.createServer(app);
 	app.use(express.static(__dirname + "/client"));
-	app.get("/", (req, res) => res.sendFile(__dirname + "/client/index.html"))
+	app.get("/*", (req, res) => res.sendFile(__dirname + "/client/index.html"))
 	server.listen(port, function() {
 		var addr = server.address();
 		console.log("TextWall server is hosted on " + addr.address + ":" + addr.port);
@@ -452,7 +452,6 @@ function init_ws() {
 				
 				
 				var world = (await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1) AND LOWER(name) = LOWER($2);", [namespace, pathname])).rows[0];
-				console.log(world);
 				if(!world) {
 					sdata.worldAttr = {};
 					if(sdata.isAuthenticated && namespace.toLowerCase() == sdata.authUser.toLowerCase()) {
