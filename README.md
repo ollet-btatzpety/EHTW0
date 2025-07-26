@@ -1,3 +1,2 @@
-# textwall-glitch
-textwall for glitch
 # textwall-render
+textwall for render
