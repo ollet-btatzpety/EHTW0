@@ -1001,7 +1001,7 @@ function init_ws() {
 									namechanged: newUser
 								}));
 								await pool.query("UPDATE worlds SET namespace=$1 WHERE LOWER(namespace)=LOWER($2)", [newUser, oldUser]);
-								await pool.query("UPDATE tokens SET username=$1 WHERE LOWER(user_id)=LOWER($2)", [newUser, account.id]);
+								await pool.query("UPDATE tokens SET username=$1 WHERE user_id=$2", [newUser, account.id]);
 								var kWorld = sdata.connectedWorldId;
 								wss.clients.forEach(async function(sock) {
 									if(!sock || !sock.sdata) return;
