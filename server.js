@@ -10,7 +10,7 @@ var msgpack = require("./msgpack.js");
 
 console.log("Starting server...");
 
-var port = 8080;
+var port = process.env.PORT || 8080;
 
 
 const pool = new Pool({
@@ -283,7 +283,7 @@ async function editWorldAttr(worldId, prop, value) {
 	if(!world) return;
 	var attr = JSON.parse(world.attributes);
 	attr[prop] = value;
-	await pool.query("UPDATE worlds SET attributes=$1 WHERE id=$2", [JSON.stringify(attr), worldId]);
+	await pool.query("UPDATE worlds SET attributes=$1 WHERE id=$2", [attr, worldId]);
 	
 	wss.clients.forEach(function(sock) {
 		if(!sock || !sock.sdata) return;
