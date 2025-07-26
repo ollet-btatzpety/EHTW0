@@ -195,7 +195,6 @@ async function getChunk(worldId, x, y, canCreate) {
 		return chunkCache[tuple];
 	} else {
 		var data = (await pool.query("SELECT * FROM chunks WHERE world_id=$1 AND x=$2 AND y=$3", [worldId, x, y])).rows[0];
-		console.log(data);
 		if(data) {
 			var colorRaw = data.colorfmt;
 			var colorArray = [];
@@ -510,7 +509,7 @@ function init_ws() {
 						await evictClient(ws);
 						return;
 					}
-					var memberCheck = await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId]).rows[0];
+					var memberCheck = (await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId])).rows[0];
 					if(memberCheck) {
 						send(ws, msgpack.encode({
 							perms: 1
@@ -679,13 +678,13 @@ function init_ws() {
 					return;
 				}
 				
-				var userObj = await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [user]).rows[0];
+				var userObj = (await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [user])).rows[0];
 				if(userObj) {
 					send(ws, msgpack.encode({
 						nametaken: true
 					}));
 				} else {
-					var rowid = await pool.query("INSERT INTO users (username, password, date_joined) VALUES($1, $2, $3) RETURNING id", [user, encryptHash(pass), Date.now()]).rows[0].id;
+					var rowid = (await pool.query("INSERT INTO users (username, password, date_joined) VALUES($1, $2, $3) RETURNING id", [user, encryptHash(pass), Date.now()])).rows[0].id;
 					sdata.isAuthenticated = true;
 					sdata.authUser = user;
 					//sdata.authUserId = (await pool.query("SELECT id FROM users WHERE rowid=$1", [rowid])).rows[0].id;
@@ -722,7 +721,7 @@ function init_ws() {
 				if(user.length > 64) return;
 				if(pass.length > 64) return;
 
-				var userObj = await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)").get(user);
+				var userObj = (await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)")).get(user);
 				if(userObj) {
 					var db_user = userObj.username;
 					var db_id = userObj.id;
@@ -754,7 +753,7 @@ function init_ws() {
 									await evictClient(ws);
 									return;
 								}
-								var memberCheck = await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId]).rows[0];
+								var memberCheck = (await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId])).rows[0];
 								if(memberCheck) {
 									send(ws, msgpack.encode({
 										perms: 1
@@ -837,7 +836,7 @@ function init_ws() {
 				if(member.length > 64) return;
 				
 				if(sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase()) {
-					var exists = await pool.query("SELECT * FROM members WHERE username=LOWER($1)", [member]).rows[0];
+					var exists = (await pool.query("SELECT * FROM members WHERE username=LOWER($1)", [member])).rows[0];
 					if(!exists) {
 						await pool.query("INSERT INTO members (world_id, username) VALUES($1, $2)", [sdata.connectedWorldId, member]);
 						send(ws, msgpack.encode({
@@ -985,7 +984,7 @@ function init_ws() {
 						var db_pass = account.password;
 						var isValid = checkHash(db_pass, pass);
 						if(isValid) {
-							var userCheck = await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [newUser]).rows[0];
+							var userCheck = (await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [newUser])).rows[0];
 							if(userCheck) {
 								send(ws, msgpack.encode({
 									nametaken: true
