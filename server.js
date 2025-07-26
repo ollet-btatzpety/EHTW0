@@ -1139,8 +1139,8 @@ async function initServer() {
 
 			CREATE TABLE chunks (
 				world_id INTEGER NOT NULL,
-				x INTEGER NOT NULL,
-				y INTEGER NOT NULL,
+				x BIGINT NOT NULL,
+				y BIGINT NOT NULL,
 				text TEXT,
 				colorFmt TEXT,
 				protected INTEGER
