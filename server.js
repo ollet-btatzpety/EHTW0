@@ -194,7 +194,7 @@ async function getChunk(worldId, x, y, canCreate) {
 	if(chunkCache[tuple]) {
 		return chunkCache[tuple];
 	} else {
-		var data = await pool.query("SELECT * FROM chunks WHERE world_id=$1 AND x=$2 AND y=$3", [worldId, x, y]).rows[0];
+		var data = (await pool.query("SELECT * FROM chunks WHERE world_id=$1 AND x=$2 AND y=$3", [worldId, x, y])).rows[0];
 		if(data) {
 			var colorRaw = data.colorFmt;
 			var colorArray = [];
@@ -222,9 +222,9 @@ async function getChunk(worldId, x, y, canCreate) {
 		}
 	}
 }
-function writeChunk(worldId, x, y, idx, char, colorFmt, isMember) {
+async function writeChunk(worldId, x, y, idx, char, colorFmt, isMember) {
 	var tuple = worldId + "," + x + "," + y;
-	var chunk = getChunk(worldId, x, y, true);
+	var chunk = await getChunk(worldId, x, y, true);
 	var prot = chunk.protected;
 	if(prot && !isMember) return false;
 	chunk.char[idx] = String.fromCodePoint(char);
@@ -232,16 +232,16 @@ function writeChunk(worldId, x, y, idx, char, colorFmt, isMember) {
 	modifiedChunks[tuple] = true;
 	return true;
 }
-function toggleProtection(worldId, x, y) {
+async function toggleProtection(worldId, x, y) {
 	var tuple = worldId + "," + x + "," + y;
-	var chunk = getChunk(worldId, x, y, true);
+	var chunk = await getChunk(worldId, x, y, true);
 	chunk.protected = !chunk.protected;
 	modifiedChunks[tuple] = true;
 	return chunk.protected;
 }
-function clearChunk(worldId, x, y) {
+async function clearChunk(worldId, x, y) {
 	var tuple = worldId + "," + x + "," + y;
-	var chunk = getChunk(worldId, x, y, false);
+	var chunk = await getChunk(worldId, x, y, false);
 	if(!chunk.exists) return;
 	for(var i = 0; i < chunk.char.length; i++) {
 		chunk.char[i] = " ";
@@ -251,7 +251,7 @@ function clearChunk(worldId, x, y) {
 }
 
 async function sendOwnerStuff(ws, connectedWorldId, connectedWorldNamespace) {
-	var memberList = await pool.query("SELECT * FROM members WHERE world_id=$1", [connectedWorldId]).rows;
+	var memberList = (await pool.query("SELECT * FROM members WHERE world_id=$1", [connectedWorldId])).rows;
 	var normMemberList = [];
 	for(var i = 0; i < memberList.length; i++) {
 		normMemberList.push(memberList[i].username);
@@ -259,7 +259,7 @@ async function sendOwnerStuff(ws, connectedWorldId, connectedWorldNamespace) {
 	send(ws, msgpack.encode({
 		ml: normMemberList
 	}));
-	sendWorldList(ws, connectedWorldId, connectedWorldNamespace);
+	await sendWorldList(ws, connectedWorldId, connectedWorldNamespace);
 }
 
 async function sendWorldList(ws, connectedWorldId, connectedWorldNamespace, noPrivate) {
@@ -279,7 +279,7 @@ async function sendWorldList(ws, connectedWorldId, connectedWorldNamespace, noPr
 }
 
 async function editWorldAttr(worldId, prop, value) {
-	var world = await pool.query("SELECT attributes FROM worlds WHERE id=$1", [worldId]).rows[0];
+	var world = (await pool.query("SELECT attributes FROM worlds WHERE id=$1", [worldId])).rows[0];
 	if(!world) return;
 	var attr = JSON.parse(world.attributes);
 	attr[prop] = value;
@@ -321,7 +321,7 @@ async function evictClient(ws) {
 		b: [-1000000000000, 1000000000000, -1000000000000, 1000000000000]
 	}));
 	ws.sdata.isConnected = true;
-	var worldInfo = await pool.query("SELECT * FROM worlds WHERE id=1").rows[0];
+	var worldInfo = (await pool.query("SELECT * FROM worlds WHERE id=1")).rows[0];
 	sendWorldAttrs(ws, worldInfo);
 	dumpCursors(ws);
 }
@@ -447,7 +447,7 @@ function init_ws() {
 				}
 				
 				
-				var world = (await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1) AND LOWER(name) = LOWER($2);", [namespace, pathname])).rows[0];
+				var world = await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1) AND LOWER(name) = LOWER($2);", [namespace, pathname]).rows[0];
 				console.log(world);
 				if(!world) {
 					sdata.worldAttr = {};
@@ -460,7 +460,7 @@ function init_ws() {
 							disableColor: false,
 							disableBraille: false
 						})]).rows[0].id;
-						var worldInfo = await pool.query("SELECT * FROM worlds WHERE id=$1", [insertInfo]).rows[0];
+						var worldInfo = (await pool.query("SELECT * FROM worlds WHERE id=$1", [insertInfo])).rows[0];
 						sdata.connectedWorldNamespace = worldInfo.namespace;
 						sdata.connectedWorldName = worldInfo.name;
 						sdata.connectedWorldId = worldInfo.id;
@@ -472,7 +472,7 @@ function init_ws() {
 						}));
 						sdata.isMember = true;
 						sdata.isConnected = true;
-						sendOwnerStuff(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace);
+						await sendOwnerStuff(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace);
 						send(ws, msgpack.encode({
 							b: [-1000000000000, 1000000000000, -1000000000000, 1000000000000]
 						}));
@@ -480,7 +480,7 @@ function init_ws() {
 						dumpCursors(ws);
 						return;
 					} else {
-						evictClient(ws);
+						await evictClient(ws);
 						return;
 					}
 				}
@@ -503,10 +503,10 @@ function init_ws() {
 					}));
 					sdata.isMember = true;
 					
-					sendOwnerStuff(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace);
+					await sendOwnerStuff(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace);
 				} else if(sdata.isAuthenticated) {
 					if(attr.private) {
-						evictClient(ws);
+						await evictClient(ws);
 						return;
 					}
 					var memberCheck = await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId]).rows[0];
@@ -520,16 +520,16 @@ function init_ws() {
 							perms: 0
 						}));
 					}
-					sendWorldList(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace, true);
+					await sendWorldList(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace, true);
 				} else {
 					if(attr.private) {
-						evictClient(ws);
+						await evictClient(ws);
 						return;
 					}
 					send(ws, msgpack.encode({
 						perms: 0
 					}));
-					sendWorldList(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace, true);
+					await sendWorldList(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace, true);
 				}
 				
 				sendWorldAttrs(ws, world);
@@ -553,7 +553,7 @@ function init_ws() {
 				for(var i = 0; i < len; i++) {
 					var x = san_nbr(regions[i * 2]);
 					var y = san_nbr(regions[i * 2 + 1]);
-					var cd = getChunk(sdata.connectedWorldId, x, y);
+					var cd = await getChunk(sdata.connectedWorldId, x, y);
 					var char = cd.char;
 					var color = cd.color;
 					var color2 = "";
@@ -630,7 +630,7 @@ function init_ws() {
 						if(!(idx >= 0 && idx <= (20*10)-1)) return;
 						if(!(colfmt >= 0 && colfmt <= 960)) return;
 						
-						var stat = writeChunk(sdata.connectedWorldId, x, y, idx, chr, colfmt, sdata.isMember);
+						var stat = await writeChunk(sdata.connectedWorldId, x, y, idx, chr, colfmt, sdata.isMember);
 						if(stat) {
 							obj.push(chr, idx, colfmt);
 							ecount++;
@@ -687,7 +687,7 @@ function init_ws() {
 					var rowid = await pool.query("INSERT INTO users (username, password, date_joined) VALUES($1, $2, $3) RETURNING id", [user, encryptHash(pass), Date.now()]).rows[0].id;
 					sdata.isAuthenticated = true;
 					sdata.authUser = user;
-					//sdata.authUserId = await pool.query("SELECT id FROM users WHERE rowid=$1", [rowid]).rows[0].id;
+					//sdata.authUserId = (await pool.query("SELECT id FROM users WHERE rowid=$1", [rowid])).rows[0].id;
 					sdata.authUserId = rowid;
 					var newToken = generateToken();
 					await pool.query("INSERT INTO tokens (token, username, user_id) VALUES($1, $2, $3)", [newToken, sdata.authUser, sdata.authUserId]);
@@ -745,12 +745,12 @@ function init_ws() {
 									perms: 2
 								}));
 								sdata.isMember = true;
-								sendOwnerStuff(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace);
+								await sendOwnerStuff(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace);
 							} else {
 								/*var world = await pool.query("SELECT * FROM worlds WHERE id=?").get(sdata.connectedWorldId);
 								var attr = JSON.parse(world.attributes);*/
 								if(sdata.worldAttr.private) {
-									evictClient(ws);
+									await evictClient(ws);
 									return;
 								}
 								var memberCheck = await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId]).rows[0];
@@ -795,7 +795,7 @@ function init_ws() {
 				if(tokenToken.length > 128) return;
 				
 				
-				var tokenData = await pool.query("SELECT * FROM tokens WHERE token=$1", [tokenToken]).rows[0];
+				var tokenData = (await pool.query("SELECT * FROM tokens WHERE token=$1", [tokenToken])).rows[0];
 				if(tokenData) {
 					var userId = tokenData.user_id;
 					send(ws, msgpack.encode({
@@ -859,10 +859,10 @@ function init_ws() {
 				if(typeof pass != "string") return;
 				if(pass.length > 64) return;
 				
-				var tokenData = await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken]).rows[0];
+				var tokenData = (await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken])).rows[0];
 				if(tokenData) {
 					var user_id = tokenData.user_id;
-					var account = await pool.query("SELECT * FROM users WHERE id=$1", [user_id]).rows[0];
+					var account = (await pool.query("SELECT * FROM users WHERE id=$1", [user_id])).rows[0];
 					if(account) {
 						var db_pass = account.password;
 						var isValid = checkHash(db_pass, pass);
@@ -894,42 +894,42 @@ function init_ws() {
 			} else if("ro" in data) { // readonly
 				var isOwner = sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase();
 				if(!isOwner) return;
-				editWorldAttr(sdata.connectedWorldId, "readonly", Boolean(data.ro));
+				await editWorldAttr(sdata.connectedWorldId, "readonly", Boolean(data.ro));
 				worldBroadcast(sdata.connectedWorldId, msgpack.encode({
 					ro: Boolean(data.ro)
 				}));
 			} else if("priv" in data) { // private
 				var isOwner = sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase();
 				if(!isOwner) return;
-				editWorldAttr(sdata.connectedWorldId, "private", Boolean(data.priv));
+				await editWorldAttr(sdata.connectedWorldId, "private", Boolean(data.priv));
 				worldBroadcast(sdata.connectedWorldId, msgpack.encode({
 					priv: Boolean(data.priv)
 				}));
 			} else if("ch" in data) { // hide cursors
 				var isOwner = sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase();
 				if(!isOwner) return;
-				editWorldAttr(sdata.connectedWorldId, "hideCursors", Boolean(data.ch));
+				await editWorldAttr(sdata.connectedWorldId, "hideCursors", Boolean(data.ch));
 				worldBroadcast(sdata.connectedWorldId, msgpack.encode({
 					ch: Boolean(data.ch)
 				}));
 			} else if("dc" in data) { // disable chat
 				var isOwner = sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase();
 				if(!isOwner) return;
-				editWorldAttr(sdata.connectedWorldId, "disableChat", Boolean(data.dc));
+				await editWorldAttr(sdata.connectedWorldId, "disableChat", Boolean(data.dc));
 				worldBroadcast(sdata.connectedWorldId, msgpack.encode({
 					dc: Boolean(data.dc)
 				}));
 			} else if("dcl" in data) { // disable color
 				var isOwner = sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase();
 				if(!isOwner) return;
-				editWorldAttr(sdata.connectedWorldId, "disableColor", Boolean(data.dcl));
+				await editWorldAttr(sdata.connectedWorldId, "disableColor", Boolean(data.dcl));
 				worldBroadcast(sdata.connectedWorldId, msgpack.encode({
 					dcl: Boolean(data.dcl)
 				}));
 			} else if("db" in data) { // disable braille
 				var isOwner = sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase();
 				if(!isOwner) return;
-				editWorldAttr(sdata.connectedWorldId, "disableBraille", Boolean(data.db));
+				await editWorldAttr(sdata.connectedWorldId, "disableBraille", Boolean(data.db));
 				worldBroadcast(sdata.connectedWorldId, msgpack.encode({
 					db: Boolean(data.db)
 				}));
@@ -947,7 +947,7 @@ function init_ws() {
 				if(!sdata.isMember) {
 					return;
 				}
-				var prot = toggleProtection(sdata.connectedWorldId, x, y);
+				var prot = await toggleProtection(sdata.connectedWorldId, x, y);
 				worldBroadcast(sdata.connectedWorldId, msgpack.encode({
 					p: [(x * 20) + "," + (y * 10), Boolean(prot)]
 				}));
@@ -959,7 +959,7 @@ function init_ws() {
 				wss.clients.forEach(function(sock) {
 					if(!sock || !sock.sdata) return;
 					if(sock.sdata.connectedWorldId == kWorld) {
-						evictClient(sock);
+						await evictClient(sock);
 					}
 				});
 			} else if("namechange" in data) {
@@ -976,10 +976,10 @@ function init_ws() {
 				if(pass.length > 128) return;
 				
 				
-				var tokenData = await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken]).rows[0];
+				var tokenData = (await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken])).rows[0];
 				if(tokenData) {
 					var user_id = tokenData.user_id;
-					var account = await pool.query("SELECT * FROM users WHERE id=$1", [user_id]).rows[0];
+					var account = (await pool.query("SELECT * FROM users WHERE id=$1", [user_id])).rows[0];
 					if(account) {
 						var db_pass = account.password;
 						var isValid = checkHash(db_pass, pass);
@@ -1002,7 +1002,7 @@ function init_ws() {
 								wss.clients.forEach(function(sock) {
 									if(!sock || !sock.sdata) return;
 									if(sock.sdata.connectedWorldId == kWorld) {
-										evictClient(sock);
+										await evictClient(sock);
 									}
 								});
 							}
@@ -1027,10 +1027,10 @@ function init_ws() {
 				if(newPass.length > 128) return;
 				
 				
-				var tokenData = await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken]).rows[0];
+				var tokenData = (await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken])).rows[0];
 				if(tokenData) {
 					var user_id = tokenData.user_id;
-					var account = await pool.query("SELECT * FROM users WHERE id=$1", [user_id]).rows[0];
+					var account = (await pool.query("SELECT * FROM users WHERE id=$1", [user_id])).rows[0];
 					if(account) {
 						var db_pass = account.password;
 						var isValid = checkHash(db_pass, oldPass);
@@ -1065,7 +1065,7 @@ function init_ws() {
 				if(!sdata.isMember) {
 					return;
 				}
-				clearChunk(sdata.connectedWorldId, x, y);
+				await clearChunk(sdata.connectedWorldId, x, y);
 				worldBroadcast(sdata.connectedWorldId, msgpack.encode({
 					c: [x * 20, y * 10, x * 20 + 20 - 1, y * 10 + 10 - 1]
 				}));
