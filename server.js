@@ -195,8 +195,9 @@ async function getChunk(worldId, x, y, canCreate) {
 		return chunkCache[tuple];
 	} else {
 		var data = (await pool.query("SELECT * FROM chunks WHERE world_id=$1 AND x=$2 AND y=$3", [worldId, x, y])).rows[0];
+		console.log(data);
 		if(data) {
-			var colorRaw = data.colorFmt;
+			var colorRaw = data.colorfmt;
 			var colorArray = [];
 			for(var i = 0; i < colorRaw.length; i++) {
 				colorArray.push(colorRaw[i].charCodeAt() - 192);
