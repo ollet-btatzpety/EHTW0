@@ -263,7 +263,7 @@ async function sendOwnerStuff(ws, connectedWorldId, connectedWorldNamespace) {
 }
 
 async function sendWorldList(ws, connectedWorldId, connectedWorldNamespace, noPrivate) {
-	var worldList = await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1)", [connectedWorldNamespace]).rows;
+	var worldList = (await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1)", [connectedWorldNamespace])).rows;
 	var normWorldList = [];
 	for(var i = 0; i < worldList.length; i++) {
 		var world = worldList[i];
