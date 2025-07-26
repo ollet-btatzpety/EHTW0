@@ -268,7 +268,7 @@ async function sendWorldList(ws, connectedWorldId, connectedWorldNamespace, noPr
 	for(var i = 0; i < worldList.length; i++) {
 		var world = worldList[i];
 		var wname = world.name;
-		var attr = JSON.parse(world.attributes);
+		var attr = world.attributes;
 		if(noPrivate && attr.private) continue;
 		normWorldList.push(wname, Boolean(attr.private));
 	}
@@ -281,7 +281,7 @@ async function sendWorldList(ws, connectedWorldId, connectedWorldNamespace, noPr
 async function editWorldAttr(worldId, prop, value) {
 	var world = (await pool.query("SELECT attributes FROM worlds WHERE id=$1", [worldId])).rows[0];
 	if(!world) return;
-	var attr = JSON.parse(world.attributes);
+	var attr = world.attributes;
 	attr[prop] = value;
 	await pool.query("UPDATE worlds SET attributes=$1 WHERE id=$2", [attr, worldId]);
 	
@@ -293,7 +293,7 @@ async function editWorldAttr(worldId, prop, value) {
 	});
 }
 function sendWorldAttrs(ws, world) {
-	var attr = JSON.parse(world.attributes);
+	var attr = world.attributes;
 	send(ws, msgpack.encode({ ro: Boolean(attr.readonly) }));
 	send(ws, msgpack.encode({ priv: Boolean(attr.private) }));
 	send(ws, msgpack.encode({ ch: Boolean(attr.hideCursors) }));
@@ -452,14 +452,14 @@ function init_ws() {
 				if(!world) {
 					sdata.worldAttr = {};
 					if(sdata.isAuthenticated && namespace.toLowerCase() == sdata.authUser.toLowerCase()) {
-						var insertInfo = await pool.query("INSERT INTO worlds (namespace, name, attributes) VALUES($1, $2, $3) RETURNING id", [sdata.authUser, pathname, JSON.stringify({
+						var insertInfo = await pool.query("INSERT INTO worlds (namespace, name, attributes) VALUES($1, $2, $3) RETURNING id", [sdata.authUser, pathname, {
 							readonly: false,
 							private: false,
 							hideCursors: false,
 							disableChat: false,
 							disableColor: false,
 							disableBraille: false
-						})]).rows[0].id;
+						}]).rows[0].id;
 						var worldInfo = (await pool.query("SELECT * FROM worlds WHERE id=$1", [insertInfo])).rows[0];
 						sdata.connectedWorldNamespace = worldInfo.namespace;
 						sdata.connectedWorldName = worldInfo.name;
@@ -485,7 +485,7 @@ function init_ws() {
 					}
 				}
 				
-				var attr = JSON.parse(world.attributes);
+				var attr = world.attributes;
 				sdata.worldAttr = attr;
 				
 				sdata.connectedWorldNamespace = world.namespace;
@@ -696,14 +696,14 @@ function init_ws() {
 					}));
 					sdata.authToken = newToken;
 					
-					await pool.query("INSERT INTO worlds (namespace, name, attributes) VALUES($1, $2, $3)", [sdata.authUser, "main", JSON.stringify({
+					await pool.query("INSERT INTO worlds (namespace, name, attributes) VALUES($1, $2, $3)", [sdata.authUser, "main", {
 						readonly: false,
 						private: false,
 						hideCursors: false,
 						disableChat: false,
 						disableColor: false,
 						disableBraille: false
-					})]);
+					}]);
 				}
 				
 				
@@ -1155,14 +1155,14 @@ async function initServer() {
 			[
 				"textwall",
 				"main",
-				JSON.stringify({
+				{
 					readonly: false,
 					private: false,
 					hideCursors: false,
 					disableChat: false,
 					disableColor: false,
 					disableBraille: false
-				})
+				}
 			]
 		);
 	}
