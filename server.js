@@ -4,7 +4,7 @@ var express = require("express");
 var querystring = require("querystring");
 var url_parse = require("url");
 var ws = require("ws");
-var sql = require("better-sqlite3");
+const { Pool } = require('pg');
 var crypto = require("crypto");
 var msgpack = require("./msgpack.js");
 
@@ -13,7 +13,12 @@ console.log("Starting server...");
 var port = 8080;
 
 
-var db = sql("./data.sqlite3");
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+    rejectUnauthorized: false 
+  }
+});
 
 
 var pw_encryption = "sha512WithRSAEncryption";
@@ -135,30 +140,38 @@ var onlineCount = 0;
 var chunkCache = {};
 var modifiedChunks = {};
 
-function commitChunks() {
-	db.prepare("BEGIN");
-	for(var t in modifiedChunks) {
-		var tup = t.split(",");
-		var worldId = parseInt(tup[0]);
-		var chunkX = parseInt(tup[1]);
-		var chunkY = parseInt(tup[2]);
-		var data = chunkCache[t];
-		var text = data.char.join("");
-		var color = "";
-		for(var i = 0; i < data.color.length; i++) {
-			color += String.fromCharCode(data.color[i] + 192);
+async function commitChunks() {
+	const client = await pool.connect();
+	var clonedModifiedChunks = { ...modifiedChunks };
+	try {
+		await client.query('BEGIN');
+		for(var t in clonedModifiedChunks) {
+			var tup = t.split(",");
+			var worldId = parseInt(tup[0]);
+			var chunkX = parseInt(tup[1]);
+			var chunkY = parseInt(tup[2]);
+			var data = chunkCache[t];
+			var text = data.char.join("");
+			var color = "";
+			for(var i = 0; i < data.color.length; i++) {
+				color += String.fromCharCode(data.color[i] + 192);
+			}
+			var prot = data.protected;
+			if(data.exists) {
+				await client.query("UPDATE chunks SET text=$1, colorFmt=$2, protected=$3 WHERE world_id=$4 AND x=$5 AND y=$6", [text, color, Number(prot), worldId, chunkX, chunkY]);
+			} else {
+				data.exists = true;
+				//console.log(tup, worldId, chunkX, chunkY, text, color, prot);
+				await client.query("INSERT INTO chunks (world_id, x, y, text, colorFmt, protected) VALUES($1, $2, $3, $4, $5, $6)", [worldId, chunkX, chunkY, text, color, Number(prot)]);
+			}
+			delete modifiedChunks[t];
 		}
-		var prot = data.protected;
-		if(data.exists) {
-			db.prepare("UPDATE chunks SET text=?, colorFmt=?, protected=? WHERE world_id=? AND x=? AND y=?").run(text, color, Number(prot), worldId, chunkX, chunkY);
-		} else {
-			data.exists = true;
-			//console.log(tup, worldId, chunkX, chunkY, text, color, prot);
-			db.prepare("INSERT INTO chunks VALUES(?, ?, ?, ?, ?, ?)").run(worldId, chunkX, chunkY, text, color, Number(prot));
-		}
-		delete modifiedChunks[t];
+		await client.query("COMMIT");
+	} catch (err) {
+		await client.query("ROLLBACK");
+	} finally {
+		client.release();
 	}
-	db.prepare("COMMIT");
 }
 
 setInterval(function() {
@@ -176,12 +189,12 @@ function flushCache() {
 	}
 }
 
-function getChunk(worldId, x, y, canCreate) {
+async function getChunk(worldId, x, y, canCreate) {
 	var tuple = worldId + "," + x + "," + y;
 	if(chunkCache[tuple]) {
 		return chunkCache[tuple];
 	} else {
-		var data = db.prepare("SELECT * FROM chunks WHERE world_id=? AND x=? AND y=?").get(worldId, x, y);
+		var data = await pool.query("SELECT * FROM chunks WHERE world_id=$1 AND x=$2 AND y=$3", [worldId, x, y]).rows[0];
 		if(data) {
 			var colorRaw = data.colorFmt;
 			var colorArray = [];
@@ -237,8 +250,8 @@ function clearChunk(worldId, x, y) {
 	modifiedChunks[tuple] = true;
 }
 
-function sendOwnerStuff(ws, connectedWorldId, connectedWorldNamespace) {
-	var memberList = db.prepare("SELECT * FROM members WHERE world_id=?").all(connectedWorldId);
+async function sendOwnerStuff(ws, connectedWorldId, connectedWorldNamespace) {
+	var memberList = await pool.query("SELECT * FROM members WHERE world_id=$1", [connectedWorldId]).rows;
 	var normMemberList = [];
 	for(var i = 0; i < memberList.length; i++) {
 		normMemberList.push(memberList[i].username);
@@ -249,8 +262,8 @@ function sendOwnerStuff(ws, connectedWorldId, connectedWorldNamespace) {
 	sendWorldList(ws, connectedWorldId, connectedWorldNamespace);
 }
 
-function sendWorldList(ws, connectedWorldId, connectedWorldNamespace, noPrivate) {
-	var worldList = db.prepare("SELECT * FROM worlds WHERE namespace=? COLLATE NOCASE").all(connectedWorldNamespace);
+async function sendWorldList(ws, connectedWorldId, connectedWorldNamespace, noPrivate) {
+	var worldList = await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1)", [connectedWorldNamespace]).rows;
 	var normWorldList = [];
 	for(var i = 0; i < worldList.length; i++) {
 		var world = worldList[i];
@@ -265,12 +278,12 @@ function sendWorldList(ws, connectedWorldId, connectedWorldNamespace, noPrivate)
 	}));
 }
 
-function editWorldAttr(worldId, prop, value) {
-	var world = db.prepare("SELECT attributes FROM worlds WHERE id=?").get(worldId);
+async function editWorldAttr(worldId, prop, value) {
+	var world = await pool.query("SELECT attributes FROM worlds WHERE id=$1", [worldId]).rows[0];
 	if(!world) return;
 	var attr = JSON.parse(world.attributes);
 	attr[prop] = value;
-	db.prepare("UPDATE worlds SET attributes=? WHERE id=?").run(JSON.stringify(attr), worldId);
+	await pool.query("UPDATE worlds SET attributes=$1 WHERE id=$2", [JSON.stringify(attr), worldId]);
 	
 	wss.clients.forEach(function(sock) {
 		if(!sock || !sock.sdata) return;
@@ -289,7 +302,7 @@ function sendWorldAttrs(ws, world) {
 	send(ws, msgpack.encode({ db: Boolean(attr.disableBraille) }));
 }
 
-function evictClient(ws) {
+async function evictClient(ws) {
 	worldBroadcast(ws.sdata.connectedWorldId, msgpack.encode({
 		rc: ws.sdata.clientId
 	}), ws);
@@ -297,6 +310,7 @@ function evictClient(ws) {
 	ws.sdata.connectedWorldNamespace = "textwall";
 	ws.sdata.connectedWorldName = "main";
 	ws.sdata.connectedWorldId = 1;
+	ws.sdata.isMember = false;
 	send(ws, msgpack.encode({
 		j: ["textwall", "main"]
 	}));
@@ -307,7 +321,7 @@ function evictClient(ws) {
 		b: [-1000000000000, 1000000000000, -1000000000000, 1000000000000]
 	}));
 	ws.sdata.isConnected = true;
-	var worldInfo = db.prepare("SELECT * FROM worlds WHERE id=1").get();
+	var worldInfo = await pool.query("SELECT * FROM worlds WHERE id=1").rows[0];
 	sendWorldAttrs(ws, worldInfo);
 	dumpCursors(ws);
 }
@@ -382,7 +396,7 @@ function init_ws() {
 		};
 		ws.sdata = sdata;
 		
-		ws.on("message", function(message, binary) {
+		ws.on("message", async function(message, binary) {
 			
 			if(!binary) return;
 			
@@ -433,19 +447,20 @@ function init_ws() {
 				}
 				
 				
-				var world = db.prepare("SELECT * FROM worlds WHERE namespace=? COLLATE NOCASE AND name=? COLLATE NOCASE").get(namespace, pathname);
+				var world = (await pool.query("SELECT * FROM worlds WHERE LOWER(namespace) = LOWER($1) AND LOWER(name) = LOWER($2);", [namespace, pathname])).rows[0];
+				console.log(world);
 				if(!world) {
 					sdata.worldAttr = {};
 					if(sdata.isAuthenticated && namespace.toLowerCase() == sdata.authUser.toLowerCase()) {
-						var insertInfo = db.prepare("INSERT INTO 'worlds' VALUES(null, ?, ?, ?)").run(sdata.authUser, pathname, JSON.stringify({
+						var insertInfo = await pool.query("INSERT INTO worlds (namespace, name, attributes) VALUES($1, $2, $3) RETURNING id", [sdata.authUser, pathname, JSON.stringify({
 							readonly: false,
 							private: false,
 							hideCursors: false,
 							disableChat: false,
 							disableColor: false,
 							disableBraille: false
-						})).lastInsertRowid;
-						var worldInfo = db.prepare("SELECT * FROM worlds WHERE rowid=?").get(insertInfo);
+						})]).rows[0].id;
+						var worldInfo = await pool.query("SELECT * FROM worlds WHERE id=$1", [insertInfo]).rows[0];
 						sdata.connectedWorldNamespace = worldInfo.namespace;
 						sdata.connectedWorldName = worldInfo.name;
 						sdata.connectedWorldId = worldInfo.id;
@@ -494,7 +509,7 @@ function init_ws() {
 						evictClient(ws);
 						return;
 					}
-					var memberCheck = db.prepare("SELECT * FROM members WHERE username=? COLLATE NOCASE AND world_id=?").get(sdata.authUser, sdata.connectedWorldId);
+					var memberCheck = await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId]).rows[0];
 					if(memberCheck) {
 						send(ws, msgpack.encode({
 							perms: 1
@@ -663,31 +678,32 @@ function init_ws() {
 					return;
 				}
 				
-				var userObj = db.prepare("SELECT * FROM 'users' WHERE username=? COLLATE NOCASE").get(user);
+				var userObj = await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [user]).rows[0];
 				if(userObj) {
 					send(ws, msgpack.encode({
 						nametaken: true
 					}));
 				} else {
-					var rowid = db.prepare("INSERT INTO 'users' VALUES(null, ?, ?, ?)").run(user, encryptHash(pass), Date.now()).lastInsertRowid;
+					var rowid = await pool.query("INSERT INTO users (username, password, date_joined) VALUES($1, $2, $3) RETURNING id", [user, encryptHash(pass), Date.now()]).rows[0].id;
 					sdata.isAuthenticated = true;
 					sdata.authUser = user;
-					sdata.authUserId = db.prepare("SELECT id FROM 'users' WHERE rowid=?").get(rowid).id;
+					//sdata.authUserId = await pool.query("SELECT id FROM users WHERE rowid=$1", [rowid]).rows[0].id;
+					sdata.authUserId = rowid;
 					var newToken = generateToken();
-					db.prepare("INSERT INTO 'tokens' VALUES(?, ?, ?)").run(newToken, sdata.authUser, sdata.authUserId);
+					await pool.query("INSERT INTO tokens (token, username, user_id) VALUES($1, $2, $3)", [newToken, sdata.authUser, sdata.authUserId]);
 					send(ws, msgpack.encode({
 						token: [user, newToken]
 					}));
 					sdata.authToken = newToken;
 					
-					db.prepare("INSERT INTO 'worlds' VALUES(null, ?, ?, ?)").run(sdata.authUser, "main", JSON.stringify({
+					await pool.query("INSERT INTO worlds (namespace, name, attributes) VALUES($1, $2, $3)", [sdata.authUser, "main", JSON.stringify({
 						readonly: false,
 						private: false,
 						hideCursors: false,
 						disableChat: false,
 						disableColor: false,
 						disableBraille: false
-					}));
+					})]);
 				}
 				
 				
@@ -705,7 +721,7 @@ function init_ws() {
 				if(user.length > 64) return;
 				if(pass.length > 64) return;
 
-				var userObj = db.prepare("SELECT * FROM 'users' WHERE username=? COLLATE NOCASE").get(user);
+				var userObj = await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)").get(user);
 				if(userObj) {
 					var db_user = userObj.username;
 					var db_id = userObj.id;
@@ -716,7 +732,7 @@ function init_ws() {
 						sdata.authUser = db_user;
 						sdata.authUserId = db_id;
 						var newToken = generateToken();
-						db.prepare("INSERT INTO 'tokens' VALUES(?, ?, ?)").run(newToken, sdata.authUser, sdata.authUserId);
+						await pool.query("INSERT INTO tokens (token, username, user_id) VALUES($1, $2, $3)", [newToken, sdata.authUser, sdata.authUserId]);
 						send(ws, msgpack.encode({
 							token: [sdata.authUser, newToken]
 						}));
@@ -731,13 +747,13 @@ function init_ws() {
 								sdata.isMember = true;
 								sendOwnerStuff(ws, sdata.connectedWorldId, sdata.connectedWorldNamespace);
 							} else {
-								/*var world = db.prepare("SELECT * FROM worlds WHERE id=?").get(sdata.connectedWorldId);
+								/*var world = await pool.query("SELECT * FROM worlds WHERE id=?").get(sdata.connectedWorldId);
 								var attr = JSON.parse(world.attributes);*/
 								if(sdata.worldAttr.private) {
 									evictClient(ws);
 									return;
 								}
-								var memberCheck = db.prepare("SELECT * FROM members WHERE username=? COLLATE NOCASE AND world_id=?").get(sdata.authUser, sdata.connectedWorldId);
+								var memberCheck = await pool.query("SELECT * FROM members WHERE LOWER(username)=LOWER($1) AND world_id=$2", [sdata.authUser, sdata.connectedWorldId]).rows[0];
 								if(memberCheck) {
 									send(ws, msgpack.encode({
 										perms: 1
@@ -779,7 +795,7 @@ function init_ws() {
 				if(tokenToken.length > 128) return;
 				
 				
-				var tokenData = db.prepare("SELECT * FROM tokens WHERE token=?").get(tokenToken);
+				var tokenData = await pool.query("SELECT * FROM tokens WHERE token=$1", [tokenToken]).rows[0];
 				if(tokenData) {
 					var userId = tokenData.user_id;
 					send(ws, msgpack.encode({
@@ -796,7 +812,7 @@ function init_ws() {
 				}
 			} else if("logout" in data) {
 				if(sdata.authToken) {
-					db.prepare("DELETE FROM tokens WHERE token=?").run(sdata.authToken);
+					await pool.query("DELETE FROM tokens WHERE token=$1", [sdata.authToken]);
 				}
 				send(ws, msgpack.encode({
 					perms: 0
@@ -820,9 +836,9 @@ function init_ws() {
 				if(member.length > 64) return;
 				
 				if(sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase()) {
-					var exists = db.prepare("SELECT * FROM members WHERE username=? COLLATE NOCASE").get(member);
+					var exists = await pool.query("SELECT * FROM members WHERE username=LOWER($1)", [member]).rows[0];
 					if(!exists) {
-						db.prepare("INSERT INTO members VALUES(?, ?)").run(sdata.connectedWorldId, member);
+						await pool.query("INSERT INTO members (world_id, username) VALUES($1, $2)", [sdata.connectedWorldId, member]);
 						send(ws, msgpack.encode({
 							addmem: member
 						}));
@@ -835,7 +851,7 @@ function init_ws() {
 				if(member.length > 64) return;
 				
 				if(sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase()) {
-					db.prepare("DELETE FROM members WHERE world_id=? AND username=? COLLATE NOCASE").run(sdata.connectedWorldId, member);
+					await pool.query("DELETE FROM members WHERE world_id=$1 AND LOWER(username)=LOWER($2)", [sdata.connectedWorldId, member]);
 				}
 			} else if("deleteaccount" in data) {
 				var pass = data.deleteaccount;
@@ -843,17 +859,17 @@ function init_ws() {
 				if(typeof pass != "string") return;
 				if(pass.length > 64) return;
 				
-				var tokenData = db.prepare("SELECT * FROM tokens WHERE token=?").get(sdata.authToken);
+				var tokenData = await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken]).rows[0];
 				if(tokenData) {
 					var user_id = tokenData.user_id;
-					var account = db.prepare("SELECT * FROM users WHERE id=?").get(user_id);
+					var account = await pool.query("SELECT * FROM users WHERE id=$1", [user_id]).rows[0];
 					if(account) {
 						var db_pass = account.password;
 						var isValid = checkHash(db_pass, pass);
 						if(isValid) {
-							db.prepare("DELETE FROM users WHERE id=?").run(account.id);
-							db.prepare("UPDATE worlds SET namespace=? WHERE namespace=?").run("del-" + Math.random() + "-" + account.username, account.username);
-							db.prepare("DELETE FROM tokens WHERE token=?").run(sdata.authToken);
+							await pool.query("DELETE FROM users WHERE id=$1", [account.id]);
+							await pool.query("UPDATE worlds SET namespace=$1 WHERE namespace=$2", ["del-" + Math.random() + "-" + account.username, account.username]);
+							await pool.query("DELETE FROM tokens WHERE token=$1", [sdata.authToken]);
 							send(ws, msgpack.encode({
 								accountdeleted: true
 							}));
@@ -938,7 +954,7 @@ function init_ws() {
 			} else if("dw" in data) {
 				var isOwner = sdata.isAuthenticated && sdata.connectedWorldNamespace && sdata.connectedWorldNamespace.toLowerCase() == sdata.authUser.toLowerCase();
 				if(!isOwner) return;
-				db.prepare("UPDATE worlds SET namespace=? WHERE id=?").run("del-" + Math.random(), sdata.connectedWorldId);
+				await pool.query("UPDATE worlds SET namespace=$1 WHERE id=$2", ["del-" + Math.random(), sdata.connectedWorldId]);
 				var kWorld = sdata.connectedWorldId;
 				wss.clients.forEach(function(sock) {
 					if(!sock || !sock.sdata) return;
@@ -960,28 +976,28 @@ function init_ws() {
 				if(pass.length > 128) return;
 				
 				
-				var tokenData = db.prepare("SELECT * FROM tokens WHERE token=?").get(sdata.authToken);
+				var tokenData = await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken]).rows[0];
 				if(tokenData) {
 					var user_id = tokenData.user_id;
-					var account = db.prepare("SELECT * FROM users WHERE id=?").get(user_id);
+					var account = await pool.query("SELECT * FROM users WHERE id=$1", [user_id]).rows[0];
 					if(account) {
 						var db_pass = account.password;
 						var isValid = checkHash(db_pass, pass);
 						if(isValid) {
-							var userCheck = db.prepare("SELECT * FROM users WHERE username=? COLLATE NOCASE").get(newUser);
+							var userCheck = await pool.query("SELECT * FROM users WHERE LOWER(username)=LOWER($1)", [newUser]).rows[0];
 							if(userCheck) {
 								send(ws, msgpack.encode({
 									nametaken: true
 								}));
 							} else {
 								var oldUser = account.username;
-								db.prepare("UPDATE users SET username=? WHERE id=?").run(newUser, sdata.authUserId);
+								await pool.query("UPDATE users SET username=$1 WHERE id=$2", [newUser, sdata.authUserId]);
 								sdata.authUser = newUser;
 								send(ws, msgpack.encode({
 									namechanged: newUser
 								}));
-								db.prepare("UPDATE worlds SET namespace=? WHERE namespace=? COLlATE NOCASE").run(newUser, oldUser);
-								db.prepare("UPDATE tokens SET username=? WHERE user_id=?").run(newUser, account.id);
+								await pool.query("UPDATE worlds SET namespace=$1 WHERE LOWER(namespace)=LOWER($2)", [newUser, oldUser]);
+								await pool.query("UPDATE tokens SET username=$1 WHERE LOWER(user_id)=LOWER($2)", [newUser, account.id]);
 								var kWorld = sdata.connectedWorldId;
 								wss.clients.forEach(function(sock) {
 									if(!sock || !sock.sdata) return;
@@ -1011,25 +1027,26 @@ function init_ws() {
 				if(newPass.length > 128) return;
 				
 				
-				var tokenData = db.prepare("SELECT * FROM tokens WHERE token=?").get(sdata.authToken);
+				var tokenData = await pool.query("SELECT * FROM tokens WHERE token=$1", [sdata.authToken]).rows[0];
 				if(tokenData) {
 					var user_id = tokenData.user_id;
-					var account = db.prepare("SELECT * FROM users WHERE id=?").get(user_id);
+					var account = await pool.query("SELECT * FROM users WHERE id=$1", [user_id]).rows[0];
 					if(account) {
 						var db_pass = account.password;
 						var isValid = checkHash(db_pass, oldPass);
 						if(isValid) {
-							db.prepare("UPDATE users SET password=? WHERE id=?").run(encryptHash(newPass), user_id);
+							await pool.query("UPDATE users SET password=$1 WHERE id=$2", [encryptHash(newPass), user_id]);
 							send(ws, msgpack.encode({
 								passchanged: true
 							}));
-							}
+							
 						} else {
 							send(ws, msgpack.encode({
 								wrongpass: true
 							}));
 						}
 					}
+				}
 			} else if("c" in data) {
 				var pos = data.c;
 				
@@ -1081,32 +1098,73 @@ function init_ws() {
 
 
 async function initServer() {
-	if(!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='server_info'").get()) {
-		db.prepare("CREATE TABLE 'server_info' (name TEXT, value TEXT)").run();
-		
-		
-		db.prepare("CREATE TABLE 'worlds' (id INTEGER NOT NULL PRIMARY KEY, namespace TEXT, name TEXT, attributes TEXT)").run();
-		db.prepare("CREATE TABLE 'users' (id INTEGER NOT NULL PRIMARY KEY, username TEXT, password TEXT, date_joined INTEGER)").run();
-		db.prepare("CREATE TABLE 'tokens' (token TEXT, username TEXT, user_id INTEGER NOT NULL)").run();
-		db.prepare("CREATE TABLE 'members' (world_id INTEGER, username TEXT)").run();
-		db.prepare("CREATE TABLE 'chunks' (world_id INTEGER NOT NULL, x INTEGER NOT NULL, y INTEGER NOT NULL, text TEXT, colorFmt TEXT, protected INTEGER)").run();
-		
-		db.prepare("CREATE INDEX 'ic' ON 'chunks' (world_id, x, y)").run();
-		db.prepare("CREATE INDEX 'iu' ON 'users' (username)").run();
-		db.prepare("CREATE INDEX 'it' ON 'tokens' (token)").run();
-		db.prepare("CREATE INDEX 'im' ON 'members' (world_id)").run();
-		db.prepare("CREATE INDEX 'im2' ON 'members' (world_id, username)").run();
-		db.prepare("CREATE INDEX 'iw' ON 'worlds' (namespace)").run();
-		db.prepare("CREATE INDEX 'iw2' ON 'worlds' (namespace, name)").run();
-		
-		db.prepare("INSERT INTO 'worlds' VALUES(null, ?, ?, ?)").run("textwall", "main", JSON.stringify({
-			readonly: false,
-			private: false,
-			hideCursors: false,
-			disableChat: false,
-			disableColor: false,
-			disableBraille: false
-		}));
+	const { rows } = await pool.query(
+		"SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public' AND tablename = 'server_info'"
+	);
+	if (rows.length === 0) {
+		await pool.query(`
+			CREATE TABLE server_info (
+				name TEXT,
+				value TEXT
+			);
+
+			CREATE TABLE worlds (
+				id SERIAL PRIMARY KEY,
+				namespace TEXT,
+				name TEXT,
+				attributes JSONB
+			);
+
+			CREATE TABLE users (
+				id SERIAL PRIMARY KEY,
+				username TEXT,
+				password TEXT,
+				date_joined BIGINT
+			);
+
+			CREATE TABLE tokens (
+				token TEXT,
+				username TEXT,
+				user_id INTEGER NOT NULL
+			);
+
+			CREATE TABLE members (
+				world_id INTEGER,
+				username TEXT
+			);
+
+			CREATE TABLE chunks (
+				world_id INTEGER NOT NULL,
+				x INTEGER NOT NULL,
+				y INTEGER NOT NULL,
+				text TEXT,
+				colorFmt TEXT,
+				protected INTEGER
+			);
+
+			CREATE INDEX ic ON chunks (world_id, x, y);
+			CREATE INDEX iu ON users (username);
+			CREATE INDEX it ON tokens (token);
+			CREATE INDEX im ON members (world_id);
+			CREATE INDEX im2 ON members (world_id, username);
+			CREATE INDEX iw ON worlds (namespace);
+			CREATE INDEX iw2 ON worlds (namespace, name);
+		`);
+		await pool.query(
+			"INSERT INTO worlds (namespace, name, attributes) VALUES ($1, $2, $3)",
+			[
+				"textwall",
+				"main",
+				JSON.stringify({
+					readonly: false,
+					private: false,
+					hideCursors: false,
+					disableChat: false,
+					disableColor: false,
+					disableBraille: false
+				})
+			]
+		);
 	}
 	runserver();
 }
