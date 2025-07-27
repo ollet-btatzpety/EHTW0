@@ -1,644 +1,1042 @@
-body{
-    margin:0;
-    overflow:hidden;
-    touch-action:none;
-    position:static
+body {
+  margin: 0;
+  overflow: hidden;
+  touch-action: none;
+  position: static;
 }
-*{
-    font-family:ubuntu mono,monospace,courier new,Courier,special;
-    -webkit-tap-highlight-color:transparent
+* {
+  font-family: source code pro, monospace, courier new, Courier, special;
+  -webkit-tap-highlight-color: transparent;
 }
-canvas{
-    touch-action:none;
-    cursor:text;
-    position:absolute;
-    z-index:-1
+.emoji {
+  height: 12px;
+  width: 12px;
+  vertical-align: bottom;
 }
-h3{
-    margin-top:10px;
-    margin-bottom:10px
+input[type="checkbox"] {
+    accent-color: #b324e6;    
 }
-.bold{
-    font-weight:700
+input[type="range"] {
+    accent-color: #b324e6;    
 }
-.hidden{
-    display:none!important
+a {
+  color: #b324e6;
 }
-#clipboard,#textarea{
-    width:0;
-    height:0;
-    transform:translate(-200px,-200px);
-    position:absolute
+canvas {
+  touch-action: none;
+  cursor: text;
+  position: absolute;
+  z-index: -1;
 }
-.connectingtext{
-    display:block;
-    text-align:center;
-    user-select:none
+h3 {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
-#nametag{
-    width:100px;
-    margin-right:5px
+.bold {
+  font-weight: 700;
 }
-.infotext{
-    display:flex;
-    justify-content:center;
-    user-select:none
+.hidden {
+  display: none !important;
 }
-#nearby{
-    margin-right:15px;
-    cursor:pointer
+#clipboard,
+#textarea {
+  width: 0;
+  height: 0;
+  transform: translate(-200px, -200px);
+  position: absolute;
 }
-#connecting{
-    position:absolute;
-    width:100vw;
-    height:100vh;
-    background-color:rgba(30,30,30,.8);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:4;
-    color:#fff;
-    transition:opacity .5s
+.connectingtext {
+  display: block;
+  text-align: center;
+  user-select: none;
 }
-#info{
-    background-color:rgba(30,30,30,.8);
-    color:#fff;
-    padding:5px 0;
-    font-size:18px;
-    pointer-events:auto;
-    transition:all .5s;
-    z-index:2;
-    position:absolute;
-    bottom:0;
-    transition:all .5s
+#nametag {
+  width: 100px;
+  margin-right: 5px;
 }
-#decorations{
-    position:absolute;
-    z-index:4;
-    display:none;
-    flex-direction:row;
-    background-color:rgba(30,30,30,.8);
-    border-radius:5px;
-    width:145px;
-    justify-content:space-evenly
+.infotext {
+  display: flex;
+  justify-content: center;
+  user-select: none;
 }
-.decoration{
-    background-color:#b9b9b9;
-    border-radius:25%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    margin:5px 0;
-    cursor:pointer;
-    transition:all 100ms
+#nearby {
+  margin-right: 15px;
+  cursor: pointer;
 }
-.decoration.enabled{
-    background-color:#fff
+#connecting {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(30, 30, 30, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  color: #ffffff;
+  transition: opacity 0.5s;
 }
-.decoration>img{
-    filter:opacity(.5);
-    width:30px
+#info {
+  background-color: rgba(30, 30, 30, 0.8);
+  margin: auto;
+  width: 45%;
+  color: #ffffff;
+  padding: 5px 0;
+  font-size: 18px;
+  pointer-events: auto;
+  transition: all 0.5s;
+  z-index: 2;
+  position: absolute;
+  bottom: 0;
+  transition: all 0.5s;
 }
-.decoration.enabled>img{
-    filter:opacity(1)
+@media only screen and (max-width: 600px) {
+  #info {
+    width: 100%; /* to make it better on mobile */
+  }
 }
-#usermenu{
-    background-color:rgba(30,30,30,.8);
-    color:#fff;
-    position:absolute;
-    padding:5px;
-    margin-top:10px;
-    border-radius:0 5px 5px 0;
-    transform:translateX(-105%);
-    pointer-events:auto;
-    transition:all .5s;
-    display:flex;
-    width:250px;
-    height:540px;
-    max-height:70vh;
-    justify-content:space-between;
-    -webkit-user-select:none;
-    user-select:none
+.decoration {
+  background-color: #b9b9b9;
+  border-radius: 25%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px 0;
+  cursor: pointer;
+  transition: all 100ms;
 }
-#admin,#wallsettings{
-    display:none
+.decoration.enabled {
+  background-color: #ffffff;
 }
-#addmembers{
-    margin:0 10px
+.decoration > img {
+  filter: opacity(0.5);
+  width: 30px;
 }
-#memberlist{
-    display:flex;
-    flex-wrap:wrap;
-    margin-top:5px
+.decoration.enabled > img {
+  filter: opacity(1);
 }
-.member{
-    padding:5px;
-    margin:3px;
-    background-color:rgba(255,255,255,.35);
-    border-radius:5px;
-    font-size:12px;
-    cursor:pointer
+#usermenu {
+  background-color: rgba(30, 30, 30, 0.8);
+  color: #ffffff;
+  position: absolute;
+  padding: 5px;
+  margin-top: 10px;
+  border-radius: 0 5px 5px 0;
+  transform: translateX(-105%);
+  pointer-events: auto;
+  transition: all 0.5s;
+  display: flex;
+  width: 250px;
+  height: 540px;
+  max-height: 70vh;
+  justify-content: space-between;
+  -webkit-user-select: none;
+  user-select: none;
 }
-.member:hover{
-    text-decoration:line-through;
-    color:red
+#admin,
+#wallsettings {
+  display: none;
 }
-#register,#loggedin,#accountsettings{
-    display:none
+#addmembers {
+  margin: 0 10px;
 }
-.buttonlink{
-    text-decoration:underline;
-    color:#00b7ff;
-    cursor:pointer
+#memberlist {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 5px;
 }
-#optionsmenu{
-    width:100%;
-    overflow:auto;
-    -ms-overflow-style:none;
-    overflow-wrap:break-word;
-    scrollbar-width:none;
-    max-height:526px
+.member {
+  padding: 5px;
+  margin: 3px;
+  background-color: rgba(255,255,255, 0.35);
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
 }
-input{
-    vertical-align:middle;
-    margin-top:5px
+.member:hover {
+  text-decoration: line-through;
+  color: red;
 }
-.sidething{
-    display:flex;
-    flex-direction:column
+#register,
+#loggedin,
+#accountsettings {
+  display: none;
+}
+.buttonlink {
+  text-decoration: underline;
+  color: #b324e6;
+  cursor: pointer;
+}
+#optionsmenu {
+  width: 100%;
+  overflow: auto;
+  -ms-overflow-style: none;
+  overflow-wrap: break-word;
+  scrollbar-width: none;
+  max-height: 526px;
+}
+input {
+  vertical-align: middle;
+  margin-top: 5px;
+}
+.sidething {
+  display: flex;
+  flex-direction: column;
 }
 #closemenu{
-    display:flex;
-    justify-content:center;
-    margin-bottom:4px;
-    transition:all .1s
+	display:flex;
+	cursor: pointer;
+	justify-content: center;
+	width: 15px;
+  	height: 100%;
+	align-items: center;
+	background-color: #969696cc;
+	border-radius: 5px;
+	margin-left: 5px;
+	transition: background-color 0.1s;
 }
-#closemenu:active,#closeteleport:active{
-    transform:scale(.9)
+@media (hover: hover) {
+	#closemenu:hover, #sendmsg:hover {
+		background-color: #a1a1a1cc;
+	}
 }
-#colourlist{
-    transition:none;
-    overflow:auto;
-    -ms-overflow-style:none;
-    scrollbar-width:none;
-    background-color:rgba(255,255,255,.35);
-    border-radius:5px
+#closemenu:active, #closeteleport:active, #sendmsg:active {
+	background-color: #b9b9b9cc;
 }
-#colourlist::-webkit-scrollbar,#optionsmenu::-webkit-scrollbar{
-    display:none
+.toolbar-container {
+	max-width: 100%;
 }
-.colour{
-    width:30px;
-    height:30px;
-    margin:3px;
-    border-radius:25%;
-    box-sizing:border-box;
-    transition:all 50ms
+.toolbar {
+	background-color: var(--surface-background);
+	max-width: 100%;
+	margin: 8px;
+	padding: 5px;
+	pointer-events: all;
+}
+.colours {
+	display: flex;
+}
+.colourlist {
+	display: flex;
+	overflow: auto;
+	width: 100%;
+	height: 100%;
+	max-height: 100%;
+	margin-top: 5px;
+}
+#colourlist {
+	display: flex;
+  flex-direction: column;
+	overflow-x: auto;
+	overflow-y: hidden;
+	flex-grow: 1;
+	width: 0;
+	background-color: #ffffff33;
+	border-radius: 0 0 0 0;
+}
+.colourtext {
+  font-size: 25px;
+  color: #ffffff;
+}
+.tabs {
+	display: flex;
+	overflow-y: auto;
+	scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+	display: none;
+}
+.colour {
+	min-width: 32px;
+	height: 32px;
+  vertical-align: bottom;
+	margin: 3px;
+	border-radius: 50%;
+	box-sizing: border-box;
+	transition: all 300ms;
 }
 .colour.selected{
-    border:3px solid #fff
+  min-width: 32px;
+	height: 32px;
+  color: white;
+	border-radius: 0%;
+  border: 3px solid white;
 }
-#zoom{
-    width:150px
+#zoom {
+  width: 150px;
 }
-th,td{
-    padding:5px;
-    text-align:left;
-    border:1px solid #fff
+th,
+td {
+  padding: 5px;
+  text-align: left;
+  border: 1px solid #ffffff;
 }
-#coords{
-    cursor:pointer
+#coords {
+  cursor: pointer;
 }
-.infobtn{
-    width:20px;
-    padding:0 10px;
-    vertical-align:middle;
-    transition:all .1s;
-    flex-grow:1;
-    display:flex;
-    justify-content:center;
-    align-items:center
+.infobtn {
+  width: 24px;
+  padding: 0 10px;
+  vertical-align: middle;
+  transition: all 0.1s;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.infobtn>img,.button{
-    -webkit-user-drag:none;
-    -khtml-user-drag:none;
-    -moz-user-drag:none;
-    -o-user-drag:none
+.infobtn > img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
 }
-.infobtn:active{
-    transform:scale(.9);
-    background-color:rgba(30,30,30,.3)
+.infobtn:active {
+  transform: scale(0.9);
+  background-color: rgba(30, 30, 30, 0.8);
 }
-.container{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    position:absolute;
-    top:0;
-    z-index:3;
-    width:100vw;
-    height:0
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  z-index: 3;
+  width: 100vw;
+  height: 0;
 }
-#toast{
-    position:absolute;
-    background-color:rgba(30,30,30,.8);
-    color:#fff;
-    border-radius:5px;
+#toast {
+  position: absolute;
+  background-color: rgba(30, 30, 30, 0.8);
+  color: #ffffff;
+  text-align: center;
+  justify-content: center;
+  border-radius: 5px;
+  margin: 5px;
+  transition: all 0.5s;
+  padding: 5px;
+  max-width: 80vw;
+  overflow-wrap: break-word;
+  top: -30px;
+  user-select: none;
+  z-index: 3;
+  max-height: 0;
+  overflow-y: hidden;
+  white-space: pre-wrap;
+}
+#toast.toasting {
+  top: 20px;
+  max-height: 100vh;
+}
+#teleport, #shortcuts {
+  position: absolute;
+  display: block;
+  z-index: 2;
+  text-align: center;
+  transition: all 0.5s;
+  background-color: rgba(30, 30, 30, 0.8);
+  color: #ffffff;
+  margin: 15px;
+  padding: 5px 15px 15px;
+  border-radius: 5px;
+  width: 330px;
+  max-width: 85vw;
+  top: -400px;
+  user-select: none;
+  max-height: 300px;
+  overflow-y: hidden;
+}
+#teleport.open, #shortcuts.open {
+  top: 40px;
+  max-height: 100vh;
+}
+#teleport > form > input,
+.coordinput > div > input {
+  margin-bottom: 5px;
+}
+#tpx,
+#tpy {
+  width: 70px;
+}
+.coordinput {
+  text-align: left;
+  display: flex;
+  justify-content: center;
+}
+.tptitle {
+  font-size: 26px;
+  text-align: left;
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+#closeteleport, #closeshortcut {
+  position: absolute;
+  transition: all 0.1s;
+  top: 5px;
+  right: 5px;
+}
+#walllist {
+  text-align: left;
+}
+#walllist > span > a {
+  color: #ffffff;
+}
+#walllist > span {
+  font-size: 20px;
+  font-weight: 700;
+}
+.walllist {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  height: 75px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-bottom: 5px;
+}
+.walllist a {
+  width: 100%;
+  display: block;
+  padding: 3px 0;
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+.walllist li {
+  display: flex;
+}
+.walllist li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.walllist img {
+  margin-right: 3px;
+  vertical-align: middle;
+}
+#thememenu,
+#fontmenu {
+  margin-top: 10px;
+  margin-right: 20px;
+}
+#fontmenu > input {
+  vertical-align: unset;
+}
+#customfont {
+  width: 110px;
+}
+#customfontsize {
+  width: 40px;
+}
+#chat {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  height: 500px;
+  transition: all 0.5s;
+  pointer-events: none;
+  transform: translateX(370px);
+}
+#chat.open {
+  transform: translateX(0px);
+}
+.chatcontainer {
+  width: 350px;
+  background-color: rgba(30, 30, 30, 0.8);
+  border-radius: 0 0 0 5px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+.msgcontainer {
+  display: flex;
+  justify-content: stretch;
+}
+#chatbox {
+  background-color: #f0e2fa;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  word-wrap: break-word;
+  overflow: auto;
+}
+#chatbox p{
+    display: flex;
+    position: relative;
     margin:5px;
-    transition:all .5s;
-    padding:5px;
-    max-width:80vw;
-    overflow-wrap:break-word;
-    top:-30px;
-    user-select:none;
-    z-index:3;
-    max-height:0;
-    overflow-y:hidden
-}
-#toast.toasting{
-    top:20px;
-    max-height:100vh
-}
-#teleport{
-    position:absolute;
-    display:block;
-    z-index:2;
-    text-align:center;
-    transition:all .5s;
-    background-color:rgba(30,30,30,.8);
-    color:#fff;
-    margin:15px;
-    padding:5px 15px 15px;
-    border-radius:5px;
-    width:330px;
-    max-width:85vw;
-    top:-400px;
-    user-select:none;
-    max-height:300px;
-    overflow-y:hidden
-}
-#teleport.open{
-    top:40px;
-    max-height:100vh
-}
-#teleport>form>input,.coordinput>div>input{
-    margin-bottom:5px
-}
-#tpx,#tpy{
-    width:70px
-}
-.coordinput{
-    text-align:left;
-    display:flex;
-    justify-content:center
-}
-.tptitle{
-    font-size:26px;
-    text-align:left;
-    display:block;
-    margin-bottom:10px;
-    font-weight:700
-}
-#closeteleport{
-    position:absolute;
-    transition:all .1s;
-    top:5px;
-    right:5px
-}
-#walllist{
-    text-align:left
-}
-#walllist>span>a{
-    color:#fff
-}
-#walllist>span{
-    font-size:20px;
-    font-weight:700
-}
-.walllist{
-    list-style:none;
-    padding:0;
-    text-align:left;
-    height:75px;
-    overflow-y:auto;
-    overflow-x:hidden;
-    margin-bottom:5px
-}
-.walllist a{
-    width:100%;
-    display:block;
-    padding:3px 0;
-    overflow-wrap:break-word;
-    word-break:break-all
-}
-.walllist li{
-    display:flex
-}
-.walllist li:hover{
-    background-color:rgba(255,255,255,.1)
-}
-.walllist img{
-    margin-right:3px;
-    vertical-align:middle
-}
-#thememenu,#fontmenu{
-    margin-top:10px;
-    margin-right:20px
-}
-#fontmenu>input{
-    vertical-align:unset
-}
-#customfont{
-    width:110px
-}
-#customfontsize{
-    width:40px
-}
-#chat{
-    position:absolute;
-    top:0;
-    right:0;
-    display:flex;
-    height:300px;
-    transition:all .5s;
-    pointer-events:none;
-    transform:translateX(220px)
-}
-#chat.open{
-    transform:translateX(0px)
-}
-.chatcontainer{
-    width:200px;
-    background-color:rgba(30,30,30,.8);
-    border-radius:0 0 0 5px;
-    padding:10px;
-    display:flex;
-    flex-direction:column;
-    pointer-events:auto
-}
-.msgcontainer{
-    display:flex;
-    justify-content:stretch
-}
-#chatbox{
-    background-color:#fff;
-    border-radius:5px;
-    margin-bottom:5px;
-    width:100%;
-    height:100%;
-    font-size:13px;
-    word-wrap:break-word;
-    overflow:auto
-}
-#chatbox>p{
-    margin:5px
-}
-#chatmsg{
-    border-radius:5px;
-    border:none;
-    width:100%;
-    background-color:rgba(255,255,255,.8);
-    user-select:none
-}
-#sendmsg{
-    margin:5px;
-    background-color:rgba(0,0,0,.3);
-    border-radius:5px;
-    width:20px;
-    padding:5px;
-    margin:5px 0 0 5px
-}
-#chatbutton{
-    background-color:rgba(30,30,30,.8);
-    border-radius:0 0 0 5px;
-    padding:10px;
-    margin-bottom:24px;
-    pointer-events:auto;
-    position:relative;
-    cursor:pointer
-}
-#unread{
-    width:10px;
-    height:10px;
-    border-radius:50%;
-    background-color:#d44b4b;
-    position:absolute;
-    left:-2px;
-    bottom:-2px;
-    display:none
-}
-#unread.show{
-    display:block
-}
-.button{
-    cursor:pointer;
-    transition:all .1s;
-    user-select:none
-}
-.button:active{
-    transform:scale(.9)
-}
-@font-face{
-    font-family:ubuntu mono;
-    src:url(fonts/UbuntuMono-Regular.ttf)
-}
-@font-face{
-    font-family:ubuntu mono;
-    src:url(fonts/UbuntuMono-Bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:ubuntu mono;
-    src:url(fonts/UbuntuMono-Italic.ttf);
-    font-style:italic
-}
-@font-face{
-    font-family:ubuntu mono;
-    src:url(fonts/UbuntuMono-BoldItalic.ttf);
-    font-weight:700;
-    font-style:oblique
-}
-@font-face{
-    font-family:inconsolata;
-    src:url(fonts/Inconsolata-Regular.ttf)
-}
-@font-face{
-    font-family:inconsolata;
-    src:url(fonts/Inconsolata-Bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:ibm plex mono;
-    src:url(fonts/IBMPlexMono-Regular.ttf)
-}
-@font-face{
-    font-family:ibm plex mono;
-    src:url(fonts/IBMPlexMono-Bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:ibm plex mono;
-    src:url(fonts/IBMPlexMono-Italic.ttf);
-    font-style:italic
-}
-@font-face{
-    font-family:ibm plex mono;
-    src:url(fonts/IBMPlexMono-BoldItalic.ttf);
-    font-weight:700;
-    font-style:oblique
-}
-@font-face{
-    font-family:roboto mono;
-    src:url(fonts/RobotoMono-Regular.ttf)
-}
-@font-face{
-    font-family:roboto mono;
-    src:url(fonts/RobotoMono-Bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:roboto mono;
-    src:url(fonts/RobotoMono-Italic.ttf);
-    font-style:italic
-}
-@font-face{
-    font-family:roboto mono;
-    src:url(fonts/RobotoMono-BoldItalic.ttf);
-    font-weight:700;
-    font-style:oblique
-}
-@font-face{
-    font-family:courier prime;
-    src:url(fonts/CourierPrime-Regular.ttf)
-}
-@font-face{
-    font-family:courier prime;
-    src:url(fonts/CourierPrime-Bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:courier prime;
-    src:url(fonts/CourierPrime-Italic.ttf);
-    font-style:italic
-}
-@font-face{
-    font-family:courier prime;
-    src:url(fonts/CourierPrime-BoldItalic.ttf);
-    font-weight:700;
-    font-style:oblique
-}
-@font-face{
-    font-family:cousine;
-    src:url(fonts/Cousine-Regular.ttf)
-}
-@font-face{
-    font-family:cousine;
-    src:url(fonts/Cousine-Bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:cousine;
-    src:url(fonts/Cousine-Italic.ttf);
-    font-style:italic
-}
-@font-face{
-    font-family:cousine;
-    src:url(fonts/Cousine-BoldItalic.ttf);
-    font-weight:700;
-    font-style:oblique
-}
-@font-face{
-    font-family:pointfree;
-    src:url(fonts/pointfree.ttf)
-}
-@font-face{
-    font-family:pointfree;
-    src:url(fonts/pointfree-bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:monofur;
-    src:url(fonts/monof55.ttf)
-}
-@font-face{
-    font-family:monofur;
-    src:url(fonts/monof56.ttf);
-    font-style:italic
-}
-@font-face{
-    font-family:fantasque sans mono;
-    src:url(fonts/FantasqueSansMono-Regular.ttf)
-}
-@font-face{
-    font-family:fantasque sans mono;
-    src:url(fonts/FantasqueSansMono-Bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:fantasque sans mono;
-    src:url(fonts/FantasqueSansMono-Italic.ttf);
-    font-style:italic
-}
-@font-face{
-    font-family:fantasque sans mono;
-    src:url(fonts/FantasqueSansMono-BoldItalic.ttf);
-    font-weight:700;
-    font-style:oblique
-}
-@font-face{
-    font-family:libertinus mono;
-    src:url(fonts/LibertinusMono-Regular.ttf)
-}
-@font-face{
-    font-family:libertinus mono;
-    src:url(fonts/LibertinusMono-Bold.ttf);
-    font-weight:700
-}
-@font-face{
-    font-family:fixedsys;
-    src:url(fonts/fixedsys.ttf)
-}
-@font-face{
-    font-family:special;
-    src:url(fonts/special.ttf?v=10)
-}
-@font-face{
-    font-family:cutive mono;
-    src:url(fonts/CutiveMono-Regular.ttf)
-}
-.buttons{
-    display:flex;
-    justify-content:stretch;
-    width:100vw;
-    height:40px;
-    user-select:none
-}
-@media only screen and (min-width:750px){
-    #info{
-        top:0;
-        bottom:unset;
-        border-radius:0 0 5px 0;
-        padding:5px
+    animation: message-slide 1s cubic-bezier(0.25, 1, 1, 1);
+    flex-direction: column;
+}
+@keyframes message-slide {
+    0% {
+        right:25px;
     }
-    .infobtn>img{
-        width:20px
-    }
-    .buttons{
-        width:100%;
-        height:unset
-    }
-    #usermenu{
-        margin-top:60px
+    100% {
+        right:0px;
     }
 }
-ul::-webkit-scrollbar{
-    width:8px
+#chatmsg {
+  border-radius: 5px;
+  border: none;
+  width: 100%;
+  background-color: rgba(255,255,255, 0.8);
+  user-select: none;
 }
-ul::-webkit-scrollbar-track{
-    background:rgba(255,255,255,.1);
-    border-radius:5px
+#sendmsg {
+  margin: 5px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  width: 20px;
+  padding: 5px;
+  margin: 5px 0 0 5px;
 }
-ul::-webkit-scrollbar-thumb{
-    background-color:rgba(255,255,255,.2);
-    border-radius:5px
+#chatbutton {
+  background-color: rgba(30, 30, 30, 0.8);
+  border-radius: 0 0 0 5px;
+  padding: 10px;
+  margin-bottom: 24px;
+  pointer-events: auto;
+  position: relative;
+  cursor: pointer;
+}
+#unread {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #d44b4b;
+  position: absolute;
+  left: -2px;
+  bottom: -2px;
+  display: none;
+}
+#unread.show {
+  display: block;
+}
+.button {
+  cursor: pointer;
+  transition: all 0.1s;
+  user-select: none;
+}
+.button:active {
+  transform: scale(0.9);
+}
+.tools {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	overflow-x: auto;
+	gap: 5px;
+}
+
+.separator {
+	flex-shrink: 0;
+	background-color: #ffffff;
+	width: 2px;
+	height: 24px;
+	margin: 5px;
+    border-radius: 2px;
+}
+
+.tools > div:nth-last-child(1 of :not(.hidden)).separator {
+	display: none;
+}
+
+.tool {
+	height: 24px;
+	padding: 5px;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.1s;
+}
+
+.tool.disabled, .bubble.disabled {
+	cursor: not-allowed;
+}
+.tool.disabled > img, .bubble.disabled > img {
+	filter: brightness(0.6);
+}
+
+@media (hover: hover) {
+	.tool:hover, .bubble.clickable:hover {
+		background-color: #636363cc;
+	}
+}
+
+.tool:not(.disabled):active, .bubble.clickable:not(.disabled):active {
+	background-color: #bdbdbdcc;
+}
+
+.tool.enabled, .bubble.enabled {
+	background-color: #969696cc;
+	filter: drop-shadow(0px 0px 2px #969696cc);
+}
+.small-scrollbar::-webkit-scrollbar {
+	width: 5px;
+	height: 5px;
+}
+  
+.small-scrollbar::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0);
+	border-radius: 5px;
+}
+  
+.small-scrollbar::-webkit-scrollbar-thumb {
+	background-color: rgba(255, 255, 255, 0.5);
+	border-radius: 5px;
+}
+
+/* cmutt */
+@font-face {
+  font-family: "cmu typewriter text";
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/cmutt.otf?v=1744618079380);
+}
+@font-face {
+  font-family: "cmu typewriter text";
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/cmutt_b.otf?v=1744618085059);
+  font-weight: 700;
+}
+@font-face {
+  font-family: "cmu typewriter text";
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/cmutt_i.otf?v=1744618062132);
+  font-style: italic;
+}
+@font-face {
+  font-family: "cmu typewriter text";
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/cmutt_bi.otf?v=1744618073301);
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: special;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2Fspecial.ttf?v=1747372493270);
+}
+/* fantasque sans mono */
+@font-face {
+  font-family: fantasque sans mono;
+  src: url(fonts/FantasqueSansMono-Regular.ttf);
+}
+@font-face {
+  font-family: fantasque sans mono;
+  src: url(fonts/FantasqueSansMono-Bold.ttf);
+  font-weight: 700;
+}
+@font-face {
+  font-family: fantasque sans mono;
+  src: url(fonts/FantasqueSansMono-Italic.ttf);
+  font-style: italic;
+}
+@font-face {
+  font-family: fantasque sans mono;
+  src: url(fonts/FantasqueSansMono-BoldItalic.ttf);
+  font-weight: 700;
+  font-style: oblique;
+}
+@font-face {
+  font-family: fixedsys;
+  src: url(fonts/fixedsys.ttf);
+}
+@font-face {
+  font-family: libertinus mono;
+  src: url(fonts/LibertinusMono-Regular.ttf);
+}
+@font-face {
+  font-family: libertinus mono;
+  src: url(fonts/LibertinusMono-Bold.ttf);
+  font-weight: 700;
+}
+/* lucida mono*/
+@font-face {
+  font-family: lucida console;
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/lucon.ttf?v=1744461409121);
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: lucida sans typewriter;
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/LucidaSansT-Regular.TTF?v=1746593936691);
+}
+@font-face {
+  font-family: lucida sans typewriter;
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/LucidaSansT-Bold.TTF?v=1746593921089);
+  font-weight: 700;
+}
+@font-face {
+  font-family: lucida sans typewriter;
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/LucidaSansT-Italic.TTF?v=1746593934206);
+  font-style: italic;
+}
+@font-face {
+  font-family: lucida sans typewriter;
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/LucidaSansT-BoldItalic.TTF?v=1746593932616);
+  font-weight: 700;
+  font-style: italic;
+}
+/* monofur */
+@font-face {
+  font-family: monofur;
+  src: url(fonts/monof55.ttf);
+}
+@font-face {
+  font-family: monofur;
+  src: url(fonts/monof56.ttf);
+  font-style: italic;
+}
+/* ms gothic neue */
+@font-face {
+  font-family: ms gothic neue;
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/MS-Gothic-Neue.otf?v=1745414903685)
+}
+/* segoe mono boot */
+@font-face {
+  font-family: segoe mono boot;
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/segmono_boot.ttf?v=1744186382494)
+}
+@font-face {
+  font-family: yu mono gothic;
+  src: url(https://cdn.glitch.global/32dadb8b-db6a-421e-8c38-70fd74a12607/A1Gothic.ttf?v=1746331739234)
+}
+/* ehtw gamma fonts */
+
+/* andal[e] mono*/
+@font-face {
+  font-family: andalé mono;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2Fandalemono.ttf?v=1747372437697)
+}
+/* courier prime code*/
+@font-face {
+  font-family: courier prime code;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FCourier%20Prime%20Code.ttf?v=1747372441270)
+}
+@font-face {
+  font-family: courier prime code;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FCourier%20Prime%20Code%20Italic.ttf?v=1747372439661)
+}
+/* courier prime sans*/
+@font-face {
+  font-family: courier prime sans;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FCourier%20Prime%20Sans.ttf?v=1747372447390)
+}
+@font-face {
+  font-family: courier prime sans;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FCourier%20Prime%20Sans%20Italic.ttf?v=1747372446317)
+}
+@font-face {
+  font-family: courier prime sans;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FCourier%20Prime%20Sans%20Bold.ttf?v=1747372444980)
+}
+@font-face {
+  font-family: courier prime sans;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FCourier%20Prime%20Sans%20Bold%20Italic.ttf?v=1747372443897)
+}
+/* dejavu sans mono*/
+@font-face {
+  font-family: dejavu sans mono;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FDejaVuSansMono.ttf?v=1747372451793)
+}
+@font-face {
+  font-family: dejavu sans mono;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FDejaVuSansMono-Oblique.ttf?v=1747372450514)
+}
+@font-face {
+  font-family: dejavu sans mono;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FDejaVuSansMono-Bold.ttf?v=1747372448552)
+}
+@font-face {
+  font-family: dejavu sans mono;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FDejaVuSansMono-BoldOblique.ttf?v=1747372449520)
+}
+/* envy code r */
+@font-face {
+  font-family: envy code r;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FEnvy%20Code%20R.ttf?v=1747372457700)
+}
+@font-face {
+  font-family: envy code r;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FEnvy%20Code%20R%20Italic.ttf?v=1747372456911)
+}
+@font-face {
+  font-family: envy code r;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FEnvy%20Code%20R%20Bold.ttf?v=1747372455611)
+}
+/* everson mono */
+@font-face {
+  font-family: everson mono;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FEverson%20Mono.ttf?v=1747372466989)
+}
+@font-face {
+  font-family: everson mono;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FEverson%20Mono%20Oblique.ttf?v=1747372463722)
+}
+@font-face {
+  font-family: everson mono;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FEverson%20Mono%20Bold.ttf?v=1747372461519)
+}
+@font-face {
+  font-family: everson mono;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FEverson%20Mono%20Bold%20Oblique.ttf?v=1747372460067)
+}
+/* fairfax 2 */
+@font-face {
+  font-family: fairfax2;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/FairfaxHD.ttf?v=1747528883923)
+}
+@font-face {
+  font-family: fairfax2 special;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Fairfax2Special.ttf?v=1748005627478)
+}
+/* iosevka */
+@font-face {
+  font-family: iosevka;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Iosevka-EHTW%2FIosevka-Regular.ttf?v=1747906198287)
+}
+@font-face {
+  font-family: iosevka;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Iosevka-EHTW%2FIosevka-Italic.ttf?v=1747906196859)
+}
+@font-face {
+  font-family: iosevka;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Iosevka-EHTW%2FIosevka-Bold.ttf?v=1747906186871)
+}
+@font-face {
+  font-family: iosevka;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Iosevka-EHTW%2FIosevka-BoldItalic.ttf?v=1747906188374)
+}
+/* iosevka extended*/
+@font-face {
+  font-family: iosevka extended;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Iosevka-EHTW%2FIosevka-Extended.ttf?v=1747906191158)
+}
+@font-face {
+  font-family: iosevka extended;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Iosevka-EHTW%2FIosevka-ExtendedItalic.ttf?v=1747906195403)
+}
+@font-face {
+  font-family: iosevka extended;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Iosevka-EHTW%2FIosevka-ExtendedBold.ttf?v=1747906192574)
+}
+@font-face {
+  font-family: iosevka extended;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/Iosevka-EHTW%2FIosevka-ExtendedBoldItalic.ttf?v=1747906194050)
+}
+/* iosevka gothic*/
+@font-face {
+  font-family: iosevka gothic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaGothic-Regular.ttf?v=1748004750035)
+}
+@font-face {
+  font-family: iosevka gothic;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaGothic-Italic.ttf?v=1748004748277)
+}
+@font-face {
+  font-family: iosevka gothic;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaGothic-Bold.ttf?v=1748004740411)
+}
+@font-face {
+  font-family: iosevka gothic;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaGothic-BoldItalic.ttf?v=1748004742503)
+}
+/* iosevka gothic extended*/
+@font-face {
+  font-family: iosevka gothic extended;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaGothic-Extended.ttf?v=1748004743558)
+}
+@font-face {
+  font-family: iosevka gothic extended;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaGothic-ExtendedItalic.ttf?v=1748004746473)
+}
+@font-face {
+  font-family: iosevka gothic extended;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaGothic-ExtendedBold.ttf?v=1748004744489)
+}
+@font-face {
+  font-family: iosevka gothic extended;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaGothic-ExtendedBoldItalic.ttf?v=1748004745535)
+}
+/* iosevka typewriter*/
+@font-face {
+  font-family: iosevka typewriter;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaTypewriter-Regular.ttf?v=1748004764233)
+}
+@font-face {
+  font-family: iosevka typewriter;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaTypewriter-Italic.ttf?v=1748004762508)
+}
+@font-face {
+  font-family: iosevka typewriter;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaTypewriter-Bold.ttf?v=1748004751849)
+}
+@font-face {
+  font-family: iosevka typewriter;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaTypewriter-BoldItalic.ttf?v=1748004753599)
+}
+/* iosevka typewriter extended*/
+@font-face {
+  font-family: iosevka typewriter extended;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaTypewriter-Extended.ttf?v=1748004755332)
+}
+@font-face {
+  font-family: iosevka typewriter extended;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaTypewriter-ExtendedItalic.ttf?v=1748004760683)
+}
+@font-face {
+  font-family: iosevka typewriter extended;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaTypewriter-ExtendedBold.ttf?v=1748004757096)
+}
+@font-face {
+  font-family: iosevka typewriter extended;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/font%2FIosevkaTypewriter-ExtendedBoldItalic.ttf?v=1748004758935)
+}
+/* league mono */
+@font-face {
+  font-family: league mono;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FLeagueMono-Regular.ttf?v=1747372492058)
+}
+@font-face {
+  font-family: league mono;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/install.com%2FLeagueMono-Bold.ttf?v=1747372491281)
+}
+@font-face {
+  font-family: monolity mono;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/MONOLITY-MONO.TTF?v=1748091985959)
+}
+@font-face {
+  font-family: ms mincho;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/msmincho.ttc?v=1747444649172)
+}
+@font-face {
+  font-family: pixel plus10;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/PixelMplus10-Regular.ttf?v=1747529137391)
+}
+
+/* nk57 */
+@font-face {
+  font-family: nk57 mono;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/NK57%20Monospace%20No%20Rg.otf?v=1747446199030)
+}
+@font-face {
+  font-family: nk57 mono;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/NK57%20Monospace%20No%20Rg%20It.otf?v=1747446185663)
+}
+@font-face {
+  font-family: nk57 mono;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/NK57%20Monospace%20No%20Bd.otf?v=1747446205713)
+}
+@font-face {
+  font-family: nk57 mono;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/NK57%20Monospace%20No%20Bd%20It.otf?v=1747446253577)
+}
+/*.*/
+@font-face {
+  font-family: neue montreal mono;
+  src: url(https://render.com/_next/static/media/a02a323226559df3-s.p.woff2)
+}
+@font-face {
+  font-family: neue montreal mono;
+  font-weight: 700;
+  src: url(https://render.com/_next/static/media/55dd12438d118bd8-s.p.woff2)
+}
+/* sf mono */
+@font-face {
+  font-family: sf mono;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/SFMonoRegular.otf?v=1747445899735)
+}
+@font-face {
+  font-family: sf mono;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/SFMonoRegularItalic.otf?v=1747445907483)
+}
+@font-face {
+  font-family: sf mono;
+  font-weight: 700;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/SFMonoBold.otf?v=1747445883702)
+}
+@font-face {
+  font-family: sf mono;
+  font-weight: 700;
+  font-style: italic;
+  src: url(https://cdn.glitch.global/8a4d4824-c580-4631-ab70-07c416eefeae/SFMonoBoldItalic.otf?v=1747445891246)
+}
+/* m plus 1 code*/
+/*vietnamese */
+@font-face {
+  font-family: 'M PLUS1 Code';
+  src: url(https://fonts.gstatic.com/s/mplus1code/v14/ypvfbXOOx2xFpzmYJS3N2_J2rhBStHb0.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'M PLUS1 Code';
+  src: url(https://fonts.gstatic.com/s/mplus1code/v14/ypvfbXOOx2xFpzmYJS3N2_J2rhFStHb0.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'M PLUS1 Code';
+  src: url(https://fonts.gstatic.com/s/mplus1code/v14/ypvfbXOOx2xFpzmYJS3N2_J2rh9StA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'M PLUS1 Code';
+  font-weight: 700;
+  src: url(https://fonts.gstatic.com/s/mplus1code/v14/ypvfbXOOx2xFpzmYJS3N2_J2rhBStHb0.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'M PLUS1 Code';
+  font-weight: 700;
+  src: url(https://fonts.gstatic.com/s/mplus1code/v14/ypvfbXOOx2xFpzmYJS3N2_J2rhFStHb0.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'M PLUS1 Code';
+  font-weight: 700;
+  src: url(https://fonts.gstatic.com/s/mplus1code/v14/ypvfbXOOx2xFpzmYJS3N2_J2rh9StA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
